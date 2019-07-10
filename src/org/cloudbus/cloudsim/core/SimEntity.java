@@ -406,12 +406,12 @@ public abstract class SimEntity implements Cloneable {
 			if (state != RUNNABLE) {
 				break;
 			}
-
 			ev = getNextEvent();
 		}
 
 		evbuf = null;
 	}
+
 
 	/**
 	 * Get a clone of the entity. This is used when independent replications have been specified as
@@ -542,6 +542,7 @@ public abstract class SimEntity implements Cloneable {
 
 		schedule(entityId, delay, cloudSimTag, data);
 	}
+
 
 	/**
 	 * Sends an event/message to another entity by <tt>delaying</tt> the simulation time from the

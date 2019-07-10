@@ -53,7 +53,7 @@ public abstract class ModulePlacement {
 			if(!getDeviceToModuleMap().containsKey(device.getId()))
 				getDeviceToModuleMap().put(device.getId(), new ArrayList<AppModule>());
 			getDeviceToModuleMap().get(device.getId()).add(module);
-			
+
 			if(!getModuleToDeviceMap().containsKey(module.getName()))
 				getModuleToDeviceMap().put(module.getName(), new ArrayList<Integer>());
 			getModuleToDeviceMap().get(module.getName()).add(device.getId());

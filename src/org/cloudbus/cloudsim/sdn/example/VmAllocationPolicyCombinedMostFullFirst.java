@@ -74,6 +74,7 @@ public class VmAllocationPolicyCombinedMostFullFirst extends VmAllocationPolicy 
 	 */
 	@Override
 	public boolean allocateHostForVm(Vm vm) {
+
 		if (getVmTable().containsKey(vm.getUid())) { // if this vm was not created
 			return false;
 		}
@@ -136,6 +137,9 @@ public class VmAllocationPolicyCombinedMostFullFirst extends VmAllocationPolicy 
 		
 		logMaxNumHostsUsed();
 		return result;
+
+
+
 	}
 	
 	protected int maxNumHostsUsed=0;
@@ -150,7 +154,9 @@ public class VmAllocationPolicyCombinedMostFullFirst extends VmAllocationPolicy 
 		if(maxNumHostsUsed < numHostsUsed)
 			maxNumHostsUsed = numHostsUsed;
 		System.err.println("Number of online hosts:"+numHostsUsed + ", max was ="+maxNumHostsUsed);
-		
+
+
+
 		
 	}
 	public int getMaxNumHostsUsed() { return maxNumHostsUsed;}

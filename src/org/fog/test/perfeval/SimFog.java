@@ -14,11 +14,12 @@ import org.fog.application.AppEdge;
 import org.fog.application.AppModule;
 import org.fog.application.Application;
 import org.fog.entities.*;
-import org.fog.placement.ModulePlacementHeft;
+import org.fog.placement.*;
 import org.fog.policy.AppModuleAllocationPolicy;
 import org.fog.scheduler.StreamOperatorScheduler;
 import org.fog.utils.FogLinearPowerModel;
 import org.fog.utils.FogUtils;
+import org.fog.utils.TimeKeeper;
 import org.fog.utils.distribution.DeterministicDistribution;
 
 import java.util.*;
@@ -37,6 +38,7 @@ public class SimFog {
     public static void main(String[] args){
         try
         {
+            Log.disable();
             int num_user = 1; // number of cloud users
             Calendar calendar = Calendar.getInstance();
             boolean trace_flag = false; // mean trace events
@@ -50,12 +52,25 @@ public class SimFog {
             applications.add((new ApplicationMasterSlave(appId,broker.getId())).getApplication());
 
 // creation des devices
-
-
             creationFogDevice(broker.getId(),appId);
-            new ModulePlacementHeft(fogdevices,sensors,actuators,applications.get(0));
+            //new ModulePlacementHeft(fogdevices,sensors,actuators,applications.get(0));
 
 
+            Controller controller = new Controller("master-controller", fogdevices, sensors,
+                    actuators);
+
+
+            controller.submitApplication(applications.get(0), 0,new ModulePlacementHeft(fogdevices, sensors, actuators,applications.get(0)));
+
+
+
+            TimeKeeper.getInstance().setSimulationStartTime(Calendar.getInstance().getTimeInMillis());
+
+            CloudSim.startSimulation();
+
+            CloudSim.stopSimulation();
+
+            Log.printLine("VRGame finished!");
 
 
         }catch (Exception e) {

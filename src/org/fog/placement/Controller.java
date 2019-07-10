@@ -82,8 +82,6 @@ public class Controller extends SimEntity{
 		
 		for(FogDevice dev : getFogDevices())
 			sendNow(dev.getId(), FogEvents.RESOURCE_MGMT);
-
-
 	}
 
 	@Override

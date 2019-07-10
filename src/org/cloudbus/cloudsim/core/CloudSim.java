@@ -509,7 +509,7 @@ public class CloudSim {
 	public static boolean runClockTick() {
 		SimEntity ent;
 		boolean queue_empty;
-		
+
 		int entities_size = entities.size();
 
 		for (int i = 0; i < entities_size; i++) {
@@ -523,6 +523,7 @@ public class CloudSim {
 				
 		// If there are more future events then deal with them
 		if (future.size() > 0) {
+
 			List<SimEvent> toRemove = new ArrayList<SimEvent>();
 			Iterator<SimEvent> fit = future.iterator();
 			queue_empty = false;
@@ -547,7 +548,8 @@ public class CloudSim {
 
 			future.removeAll(toRemove);
 
-		} else {
+		}
+		else {
 			queue_empty = true;
 			running = false;
 			printMessage("Simulation: No more future events");
@@ -791,6 +793,7 @@ public class CloudSim {
 						} else {
 							deferred.addEvent(e);
 						}
+
 					} else {
 						deferred.addEvent(e);
 					}
@@ -813,6 +816,8 @@ public class CloudSim {
 
 		}
 
+
+
 	}
 
 	/**
@@ -828,6 +833,7 @@ public class CloudSim {
 
 		printMessage("Entities started.");
 	}
+
 
 	/**
 	 * Check if the simulation is still running. This method should be used by entities to check if
@@ -886,22 +892,24 @@ public class CloudSim {
 	 * @return the double last clock value
 	 */
 	public static double run() {
+
 		if (!running) {
 			runStart();
 		}
 
 		while (true) {
 
+
 			if (runClockTick() || abruptTerminate) {
 				break;
 			}
+			/*
 			// this block allows termination of simulation at a specific time
 			if (terminateAt > 0.0 && clock >= terminateAt) {
 				terminateSimulation();
 				clock = terminateAt;
 				break;
 			}
-
 
 			if (pauseAt != -1
 					&& ((future.size() > 0 && clock <= pauseAt && pauseAt <= future.iterator().next()
@@ -918,9 +926,9 @@ public class CloudSim {
 				}
 			}
 
+*/
 
 		}
-
 
 		double clock = clock();
 
@@ -930,6 +938,7 @@ public class CloudSim {
 		return clock;
 
 	}
+
 
 	/**
 	 * Internal method that allows the entities to terminate. This method should <b>not</b> be used

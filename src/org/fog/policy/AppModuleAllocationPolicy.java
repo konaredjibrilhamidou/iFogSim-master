@@ -24,6 +24,7 @@ public class AppModuleAllocationPolicy extends VmAllocationPolicy{
 
 	@Override
 	public boolean allocateHostForVm(Vm vm) {
+
 		Host host = fogHost;
 		boolean result = host.vmCreate(vm);
 		if (result) { // if vm were succesfully created in the host
@@ -31,6 +32,8 @@ public class AppModuleAllocationPolicy extends VmAllocationPolicy{
 		}
 		
 		return result;
+
+
 	}
 
 	@Override

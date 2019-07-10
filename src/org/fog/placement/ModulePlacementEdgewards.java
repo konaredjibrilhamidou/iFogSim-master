@@ -76,12 +76,14 @@ public class ModulePlacementEdgewards extends ModulePlacement{
 
 			placeModulesInPath(path);
 		}
-		
+
 		for(int deviceId : getCurrentModuleMap().keySet()){
 			for(String module : getCurrentModuleMap().get(deviceId)){
 				createModuleInstanceOnDevice(getApplication().getModuleByName(module), getFogDeviceById(deviceId));
+
 			}
 		}
+
 	}
 	
 	/**
@@ -189,6 +191,7 @@ public class ModulePlacementEdgewards extends ModulePlacement{
 			List<String> modulesToPlace = getModulesToPlace(placedModules);
 
 			while(modulesToPlace.size() > 0){ // Loop runs until all modules in modulesToPlace are deployed in the path
+
 				String moduleName = modulesToPlace.get(0);
 				double totalCpuLoad = 0;
 				//IF MODULE IS ALREADY PLACED UPSTREAM, THEN UPDATE THE EXISTING MODULE
@@ -237,7 +240,6 @@ public class ModulePlacementEdgewards extends ModulePlacement{
 						Logger.debug("ModulePlacementEdgeward", "Placement of operator "+moduleName+ "NOT POSSIBLE on device "+device.getName());
 					}
 					else{
-
 
 
 						Logger.debug("ModulePlacementEdgeward", "Placement of operator "+moduleName+ " on device "+device.getName() + " successful.");

@@ -1,6 +1,5 @@
 package org.fog.placement;
 
-import org.cloudbus.cloudsim.core.CloudSim;
 import org.fog.application.AppEdge;
 import org.fog.application.AppModule;
 import org.fog.application.Application;
@@ -10,8 +9,6 @@ import org.fog.entities.Sensor;
 import org.fog.entities.Tuple;
 
 import java.util.*;
-
-import static org.fog.test.perfeval.SimFog.fogdevices;
 
 public class ModulePlacementHeft  extends ModulePlacement{
 
@@ -23,7 +20,7 @@ public class ModulePlacementHeft  extends ModulePlacement{
      * Stores the current mapping of application modules to fog devices
      */
 
-    protected Map<String,String> currentModuleMap= new HashMap<>();
+    protected Map< Integer,String> currentModuleMap= new HashMap<Integer,String>();
     protected Map<Integer, Map<String, Double>> currentModuleLoadMap;
     protected Map<Integer, Map<String, Integer>> currentModuleInstanceNum;
 
@@ -41,20 +38,30 @@ public class ModulePlacementHeft  extends ModulePlacement{
         this.setApplication(applications);
         setActuators(actuators);
         setSensors(sensors);
+        this.setModuleToDeviceMap(new HashMap<String, List<Integer>>());
+        this.setDeviceToModuleMap(new HashMap<Integer, List<AppModule>>());
+        setCurrentModuleLoadMap(new HashMap<Integer, Map<String, Double>>());
+        setCurrentModuleInstanceNum(new HashMap<Integer, Map<String, Integer>>());
+        setCurrentModuleMap(new HashMap<>());
+
+
+        for(FogDevice dev : getFogDevices()){
+            getCurrentModuleLoadMap().put(dev.getId(), new HashMap<String, Double>());
+            getCurrentModuleMap().put(dev.getId(),null);
+            getCurrentModuleInstanceNum().put(dev.getId(), new HashMap<String, Integer>());
+        }
+
         listScheduling();
         mapModules();
 
     }
 
 
+
+
     @Override
     protected void mapModules() {
-        /*List<String> orderModule = orderModule();
-        List<AppModule> module= new ArrayList<>();
-        for(String name : orderModule)
-            module.add(getApplication().getModuleByName(name));
 
-         */
 
         /**
          * ajout des sensors et des actuators aux modules à placer
@@ -79,12 +86,11 @@ public class ModulePlacementHeft  extends ModulePlacement{
         }
 
 
-
         List<String> modulesToPlace =  getModulesToPlace(placedModules);
 
         while(modulesToPlace.size()>0)
         {
-            Map<String, Double>  nameToMips = new HashMap<String,Double>();
+            Map<Integer, Double>  nameToMips = new HashMap<Integer,Double>();
             double mipsRate =0;
             String  moduleName = modulesToPlace.get(0);
 
@@ -96,51 +102,66 @@ public class ModulePlacementHeft  extends ModulePlacement{
             {
                 mipsRate= (double)_module.getMips()/(fogDevice.characteristics.getMips());
 
-                nameToMips.put(fogDevice.getName(),mipsRate);
+                nameToMips.put(fogDevice.getId(),mipsRate);
             }
 
-            String nameDevice;
+            int deviceId=0;
 
-            nameDevice = getMinKey(nameToMips);
+            deviceId = getMinKey(nameToMips);
+            /**
+             * effectue le placement du module sur un device s'il est libre sinon il  fait le placement sur un autre device disponible
+             */
 
-            if(!currentModuleMap.containsValue(nameDevice))
+            if(!currentModuleMap.containsKey(deviceId))
             {
                 placedModules.add(moduleName);
                 modulesToPlace =  getModulesToPlace(placedModules);
-                System.out.println("Placement of operator "+moduleName+ " on device "+nameDevice+ " successful.");
+                FogDevice device = getDeviceById(deviceId);
+                System.out.println("Placement of operator "+moduleName+ " on device "+device.getName()+ " successful.");
             }
             else
             {
-                for(String module : currentModuleMap.values())
-                    nameToMips.remove(module);
+                for(Integer module : currentModuleMap.keySet()) {
+                    if (currentModuleMap.get(module) !=null ) {
+                        nameToMips.remove(module);
+                    }
+                }
 
-                nameDevice =getMinKey(nameToMips);
-                System.out.println("Placement of operator "+moduleName+ " on device "+ nameDevice+ " successful.");
+                deviceId =getMinKey(nameToMips);
+                FogDevice device = getDeviceById(deviceId);
+                System.out.println("Placement of operator "+moduleName+ " on device "+ device.getName()+ " successful.");
                 placedModules.add(moduleName);
                 modulesToPlace =  getModulesToPlace(placedModules);
 
             }
 
-        currentModuleMap.put(moduleName,nameDevice);
+        currentModuleMap.put(deviceId,moduleName);
             modulesToPlace.remove(moduleName);
         }
 
 
+        for( int deviceId   : getCurrentModuleMap().keySet()){
+            if(getCurrentModuleMap().get(deviceId) != null){
+                String name  = getCurrentModuleMap().get(deviceId);
+                FogDevice device =getDeviceById(deviceId);
+                AppModule module = getApplication().getModuleByName(name);
+                createModuleInstanceOnDevice(module, device);
+            }
+
+        }
+
 
     }
 
-
-
-    public String getMinKey(Map<String,Double> nameToMips)
+    public int getMinKey(Map<Integer,Double> nameToMips)
     {
-        String nameDevice = null;
+        int deviceId = 0;
         double bestDevice =Collections.min(nameToMips.values());
-        for(String key :nameToMips.keySet())
+        for(int  key :nameToMips.keySet())
             if(nameToMips.get(key).equals(bestDevice))
-                nameDevice=key;
+                deviceId=key;
 
-      return nameDevice;
-
+      return deviceId;
     }
 
 
@@ -292,5 +313,27 @@ private Map<String, Integer> getAssociatedSensors(FogDevice device) {
 
     public static List<Actuator> getActuators() {
         return actuators;
+    }
+    public Map<Integer,String> getCurrentModuleMap() {
+        return currentModuleMap;
+    }
+
+    public Map<Integer, Map<String, Double>> getCurrentModuleLoadMap() {
+        return currentModuleLoadMap;
+    }
+
+    public Map<Integer, Map<String, Integer>> getCurrentModuleInstanceNum() {
+        return currentModuleInstanceNum;
+    }
+    public void setCurrentModuleMap(Map<Integer, String> currentModuleMap) {
+        this.currentModuleMap = currentModuleMap;
+    }
+
+    public void setCurrentModuleLoadMap(Map<Integer, Map<String, Double>> currentModuleLoadMap) {
+        this.currentModuleLoadMap = currentModuleLoadMap;
+    }
+
+    public void setCurrentModuleInstanceNum(Map<Integer, Map<String, Integer>> currentModuleInstanceNum) {
+        this.currentModuleInstanceNum = currentModuleInstanceNum;
     }
 }

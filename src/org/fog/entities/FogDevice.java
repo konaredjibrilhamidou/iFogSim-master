@@ -245,6 +245,7 @@ public class FogDevice extends PowerDatacenter {
 	
 	@Override
 	protected void processOtherEvent(SimEvent ev) {
+
 		switch(ev.getTag()){
 		case FogEvents.TUPLE_ARRIVAL:
 			processTupleArrival(ev);

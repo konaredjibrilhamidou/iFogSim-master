@@ -155,6 +155,8 @@ public class VmAllocationPolicyOverbooking extends VmAllocationPolicy implements
 		logMaxNumHostsUsed();
 		return result;
 
+
+
 	}
 	
 	protected int maxNumHostsUsed=0;

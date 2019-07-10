@@ -254,7 +254,11 @@ public class Datacenter extends SimEntity {
 			default:
 				processOtherEvent(ev);
 				break;
+
+
 		}
+
+
 	}
 
 	/**
@@ -1027,6 +1031,7 @@ public class Datacenter extends SimEntity {
 	 */
 	@Override
 	public void startEntity() {
+
 		Log.printLine(getName() + " is starting...");
 		// this resource should register to regional GIS.
 		// However, if not specified, then register to system GIS (the
@@ -1040,8 +1045,6 @@ public class Datacenter extends SimEntity {
 		sendNow(gisID, CloudSimTags.REGISTER_RESOURCE, getId());
 		// Below method is for a child class to override
 		registerOtherEntity();
-
-
 	}
 
 	/**
