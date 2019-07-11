@@ -52,6 +52,7 @@ public class SimFog {
             applications.add((new ApplicationMasterSlave(appId,broker.getId())).getApplication());
 
 // creation des devices
+
             creationFogDevice(broker.getId(),appId);
             //new ModulePlacementHeft(fogdevices,sensors,actuators,applications.get(0));
 

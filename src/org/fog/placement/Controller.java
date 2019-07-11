@@ -1,9 +1,6 @@
 package org.fog.placement;
 
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.SimEntity;
@@ -24,7 +21,7 @@ import org.fog.utils.TimeKeeper;
 public class Controller extends SimEntity{
 	
 	public static boolean ONLY_CLOUD = false;
-		
+	public List<SimEvent> event =new ArrayList<SimEvent>();
 	private List<FogDevice> fogDevices;
 	private List<Sensor> sensors;
 	private List<Actuator> actuators;
@@ -86,7 +83,6 @@ public class Controller extends SimEntity{
 
 	@Override
 	public void processEvent(SimEvent ev) {
-
 		switch(ev.getTag()){
 		case FogEvents.APP_SUBMIT:
 			processAppSubmit(ev);
@@ -105,7 +101,7 @@ public class Controller extends SimEntity{
 			printNetworkUsageDetails();
 			System.exit(0);
 			break;
-			
+
 		}
 
 

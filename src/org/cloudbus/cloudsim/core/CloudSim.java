@@ -517,11 +517,12 @@ public class CloudSim {
 			if (ent.getState() == SimEntity.RUNNABLE) {
 				ent.run();
 			}
+
 		}
 
 
-				
 		// If there are more future events then deal with them
+
 		if (future.size() > 0) {
 
 			List<SimEvent> toRemove = new ArrayList<SimEvent>();
@@ -817,7 +818,6 @@ public class CloudSim {
 		}
 
 
-
 	}
 
 	/**
@@ -885,6 +885,7 @@ public class CloudSim {
 		return !paused;
 	}
 
+
 	/**
 	 * Start the simulation running. This should be called after all the entities have been setup
 	 * and added, and their ports linked.
@@ -896,14 +897,12 @@ public class CloudSim {
 		if (!running) {
 			runStart();
 		}
-
 		while (true) {
-
 
 			if (runClockTick() || abruptTerminate) {
 				break;
 			}
-			/*
+
 			// this block allows termination of simulation at a specific time
 			if (terminateAt > 0.0 && clock >= terminateAt) {
 				terminateSimulation();
@@ -926,19 +925,14 @@ public class CloudSim {
 				}
 			}
 
-*/
 
 		}
 
 		double clock = clock();
-
 		finishSimulation();
 		runStop();
-
 		return clock;
-
 	}
-
 
 	/**
 	 * Internal method that allows the entities to terminate. This method should <b>not</b> be used
