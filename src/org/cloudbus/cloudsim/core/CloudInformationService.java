@@ -70,6 +70,7 @@ public class CloudInformationService extends SimEntity {
 	 */
 	@Override
 	public void processEvent(SimEvent ev) {
+
 		int id = -1;  // requester id
 		switch (ev.getTag()) {
 		// storing regional GIS id

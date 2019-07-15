@@ -68,7 +68,7 @@ public class ModulePlacementEdgewards extends ModulePlacement{
 
 			}
 		}
-		
+
 		List<List<Integer>> leafToRootPaths = getLeafToRootPaths();
 
 

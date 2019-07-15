@@ -72,7 +72,7 @@ public class CloudSim {
 	 * @param _traceFlag the _trace flag
 	 * @param numUser number of users
 	 * @throws Exception This happens when creating this entity before initialising CloudSim package
-	 *             or this entity name is <tt>null</tt> or empty
+	 *             or this en	processEvent(ev);tity name is <tt>null</tt> or empty
 	 * @pre $none
 	 * @post $none
 	 */
@@ -306,6 +306,7 @@ public class CloudSim {
 	}
 
 	// ======== SIMULATION METHODS ===============//
+	public static int boucle=0;
 
 	/** The entities. */
 	private static List<SimEntity> entities;
@@ -507,6 +508,7 @@ public class CloudSim {
 	 * @return true, if successful otherwise
 	 */
 	public static boolean runClockTick() {
+
 		SimEntity ent;
 		boolean queue_empty;
 
@@ -516,15 +518,14 @@ public class CloudSim {
 			ent = entities.get(i);
 			if (ent.getState() == SimEntity.RUNNABLE) {
 				ent.run();
+
 			}
 
 		}
-
-
+		boucle++;
 		// If there are more future events then deal with them
 
 		if (future.size() > 0) {
-
 			List<SimEvent> toRemove = new ArrayList<SimEvent>();
 			Iterator<SimEvent> fit = future.iterator();
 			queue_empty = false;
@@ -557,6 +558,7 @@ public class CloudSim {
 		}
 
 		return queue_empty;
+
 
 	}
 
@@ -814,9 +816,7 @@ public class CloudSim {
 			default:
 				break;
 
-
 		}
-
 
 	}
 
@@ -898,6 +898,8 @@ public class CloudSim {
 			runStart();
 		}
 		while (true) {
+
+
 
 			if (runClockTick() || abruptTerminate) {
 				break;

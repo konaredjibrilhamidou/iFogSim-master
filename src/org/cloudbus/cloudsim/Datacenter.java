@@ -122,6 +122,7 @@ public class Datacenter extends SimEntity {
 	@Override
 
 	public void processEvent(SimEvent ev) {
+
 		int srcId = -1;
 		switch (ev.getTag()) {
 		// Resource characteristics inquiry
@@ -257,7 +258,6 @@ public class Datacenter extends SimEntity {
 
 
 		}
-
 
 	}
 

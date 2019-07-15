@@ -25,7 +25,7 @@ import java.util.TreeSet;
 public class FutureQueue {
 
 	/** The sorted set. */
-	protected final SortedSet<SimEvent> sortedSet = new TreeSet<SimEvent>();
+	public final SortedSet<SimEvent> sortedSet = new TreeSet<SimEvent>();
 
 	/** The serial. */
 	private long serial = 0;

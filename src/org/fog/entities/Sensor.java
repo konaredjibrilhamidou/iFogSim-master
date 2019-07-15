@@ -127,6 +127,7 @@ public class Sensor extends SimEntity{
 
 	@Override
 	public void processEvent(SimEvent ev) {
+		System.out.println(ev);
 		switch(ev.getTag()){
 		case FogEvents.TUPLE_ACK:
 			//transmit(transmitDistribution.getNextValue());

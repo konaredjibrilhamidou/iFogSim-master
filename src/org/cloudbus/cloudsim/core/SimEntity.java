@@ -13,6 +13,7 @@ import org.cloudbus.cloudsim.NetworkTopology;
 import org.cloudbus.cloudsim.core.predicates.Predicate;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -405,16 +406,14 @@ public abstract class SimEntity implements Cloneable {
 
 	public void run() {
 		SimEvent ev = evbuf != null ? evbuf : getNextEvent();
-		while (ev != null) {
-			if(ev.getTag()==71)
-				System.out.println(ev);
-			processEvent(ev);
+
+		while (ev != null ) {
+				processEvent(ev);
 			if (state != RUNNABLE) {
 				break;
 			}
 			ev = getNextEvent();
 		}
-
 		evbuf = null;
 	}
 

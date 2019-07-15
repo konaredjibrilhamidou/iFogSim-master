@@ -44,6 +44,7 @@ public class Actuator extends SimEntity{
 
 	@Override
 	public void processEvent(SimEvent ev) {
+
 		switch(ev.getTag()){
 		case FogEvents.TUPLE_ARRIVAL:
 			processTupleArrival(ev);
