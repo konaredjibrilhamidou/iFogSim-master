@@ -56,10 +56,29 @@ public class Application {
 	 * @param moduleName
 	 * @param ram
 	 */
-	public void addAppModule(String moduleName, int ram){
-		int mips = 1000;
-		long size = 10000;
-		long bw = 1000;
+	public void addAppModule(String moduleName,int ram){
+		int mips=1000;
+		long size=1000;
+		long bw=1000;
+
+		String vmm = "Xen";
+
+		AppModule module = new AppModule(FogUtils.generateEntityId(), moduleName, appId, userId,
+				mips, ram, bw, size, vmm, new TupleScheduler(mips, 1), new HashMap<Pair<String, String>, SelectivityModel>());
+
+		getModules().add(module);
+
+	}
+
+	/**
+	 * Djibril modification
+	 * @param moduleName
+	 * @param ram
+	 * @param mips
+	 * @param size
+	 * @param bw
+	 */
+	public void addAppModule(String moduleName, int ram,int mips,long size,long bw){
 		String vmm = "Xen";
 		
 		AppModule module = new AppModule(FogUtils.generateEntityId(), moduleName, appId, userId, 
@@ -68,7 +87,8 @@ public class Application {
 		getModules().add(module);
 		
 	}
-	
+
+
 	/**
 	 * Adds a non-periodic edge to the application model.
 	 * @param source

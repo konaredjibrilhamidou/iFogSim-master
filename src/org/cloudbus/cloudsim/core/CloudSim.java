@@ -306,7 +306,6 @@ public class CloudSim {
 	}
 
 	// ======== SIMULATION METHODS ===============//
-	public static int boucle=0;
 
 	/** The entities. */
 	private static List<SimEntity> entities;
@@ -522,7 +521,8 @@ public class CloudSim {
 			}
 
 		}
-		boucle++;
+
+
 		// If there are more future events then deal with them
 
 		if (future.size() > 0) {
@@ -904,7 +904,6 @@ public class CloudSim {
 			if (runClockTick() || abruptTerminate) {
 				break;
 			}
-
 			// this block allows termination of simulation at a specific time
 			if (terminateAt > 0.0 && clock >= terminateAt) {
 				terminateSimulation();
@@ -926,7 +925,6 @@ public class CloudSim {
 					e.printStackTrace();
 				}
 			}
-
 
 		}
 

@@ -78,16 +78,11 @@ public class ModulePlacementEdgewards extends ModulePlacement{
 		}
 
 
-
-
-
 		for(int deviceId : getCurrentModuleMap().keySet()){
 			for(String module : getCurrentModuleMap().get(deviceId)){
 				createModuleInstanceOnDevice(getApplication().getModuleByName(module), getFogDeviceById(deviceId));
-
 			}
 		}
-
 	}
 	
 	/**

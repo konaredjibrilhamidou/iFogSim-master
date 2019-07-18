@@ -13,6 +13,8 @@ import java.util.*;
 public class ModulePlacementHeft  extends ModulePlacement{
 
 
+
+    protected ModuleMapping moduleMapping;
     public static List<Sensor> sensors;
     public static List<Actuator>  actuators;
     public Map<String, Double> moduleRank;
@@ -33,11 +35,11 @@ public class ModulePlacementHeft  extends ModulePlacement{
      */
 
 
-    public ModulePlacementHeft(List<FogDevice> fogdevices, List<Sensor> sensors, List<Actuator> actuators, Application applications) {
+    public ModulePlacementHeft(List<FogDevice> fogdevices, List<Sensor> sensors, List<Actuator> actuators, Application applications ) {
         this.setFogDevices(fogdevices);
         this.setApplication(applications);
-        setActuators(actuators);
-        setSensors(sensors);
+       this.setActuators(actuators);
+        this.setSensors(sensors);
         this.setModuleToDeviceMap(new HashMap<String, List<Integer>>());
         this.setDeviceToModuleMap(new HashMap<Integer, List<AppModule>>());
         setCurrentModuleLoadMap(new HashMap<Integer, Map<String, Double>>());
@@ -50,10 +52,13 @@ public class ModulePlacementHeft  extends ModulePlacement{
             getCurrentModuleMap().put(dev.getId(),null);
             getCurrentModuleInstanceNum().put(dev.getId(), new HashMap<String, Integer>());
         }
+        long starTime = System.currentTimeMillis();
 
         listScheduling();
         mapModules();
 
+        long endTime = System.currentTimeMillis();
+        System.out.println("Algorithme Time-----> "+ (endTime-starTime));
     }
 
 
@@ -61,12 +66,9 @@ public class ModulePlacementHeft  extends ModulePlacement{
 
     @Override
     protected void mapModules() {
-
-
         /**
          * ajout des sensors et des actuators aux modules à placer
          */
-
         List<String> placedModules = new ArrayList<String>();
 
         for(FogDevice fogDevice :getFogDevices())
@@ -76,69 +78,14 @@ public class ModulePlacementHeft  extends ModulePlacement{
                    if(!placedModules.contains(sensor.getTupleType()))
                     placedModules.add(sensor.getTupleType());
 
-
            for(Actuator actuator : getActuators())
                if(actuator.getGatewayDeviceId()==fogDevice.getId())
                    if(!placedModules.contains(actuator.getActuatorType()))
                        placedModules.add(actuator.getActuatorType());
 
-
         }
 
-
-        List<String> modulesToPlace =  getModulesToPlace(placedModules);
-
-        while(modulesToPlace.size()>0)
-        {
-            Map<Integer, Double>  nameToMips = new HashMap<Integer,Double>();
-            double mipsRate =0;
-            String  moduleName = modulesToPlace.get(0);
-
-/**
- * Calcul la proportion des mips pour chaque device.**Choix du device avec la proportion minimale
- */
-            AppModule _module = getApplication().getModuleByName(moduleName);
-            for(FogDevice fogDevice : getFogDevices())
-            {
-                mipsRate= (double)_module.getMips()/(fogDevice.characteristics.getMips());
-
-                nameToMips.put(fogDevice.getId(),mipsRate);
-            }
-
-            int deviceId=0;
-
-            deviceId = getMinKey(nameToMips);
-            /**
-             * effectue le placement du module sur un device s'il est libre sinon il  fait le placement sur un autre device disponible
-             */
-
-            if(!currentModuleMap.containsKey(deviceId))
-            {
-                placedModules.add(moduleName);
-                modulesToPlace =  getModulesToPlace(placedModules);
-                FogDevice device = getDeviceById(deviceId);
-                System.out.println("Placement of operator "+moduleName+ " on device "+device.getName()+ " successful.");
-            }
-            else
-            {
-                for(Integer module : currentModuleMap.keySet()) {
-                    if (currentModuleMap.get(module) !=null ) {
-                        nameToMips.remove(module);
-                    }
-                }
-
-                deviceId =getMinKey(nameToMips);
-                FogDevice device = getDeviceById(deviceId);
-                System.out.println("Placement of operator "+moduleName+ " on device "+ device.getName()+ " successful.");
-                placedModules.add(moduleName);
-                modulesToPlace =  getModulesToPlace(placedModules);
-
-            }
-
-        currentModuleMap.put(deviceId,moduleName);
-            modulesToPlace.remove(moduleName);
-        }
-
+            getHeftPlacement(placedModules);
 
         for( int deviceId   : getCurrentModuleMap().keySet()){
             if(getCurrentModuleMap().get(deviceId) != null){
@@ -150,8 +97,75 @@ public class ModulePlacementHeft  extends ModulePlacement{
 
         }
 
-
     }
+
+
+
+    public void getHeftPlacement(List<String> placedModules)
+
+    {
+        List<String> modulesToPlace =  getModulesToPlace(placedModules);
+        List<String> orderModule = orderModule();
+        while(modulesToPlace.size()>0)
+        {
+            Map<Integer, Double>  nameToMips = new HashMap<Integer,Double>();
+            double mipsRate =0;
+            String  moduleName = modulesToPlace.get(0);
+            String nameOrder= orderModule.get(0);
+
+                /**
+                 * Calcul la proportion des mips pour chaque device.**Choix du device avec la proportion minimale
+                 */
+                AppModule _module = getApplication().getModuleByName(moduleName);
+                for(FogDevice fogDevice : getFogDevices())
+                {
+                    mipsRate= _module.getMips()/fogDevice.getVmAllocationPolicy().getHostList().get(0).getPeList().get(0).getPeProvisioner().getMips();
+
+                    nameToMips.put(fogDevice.getId(),mipsRate);
+                }
+                int deviceId=0;
+
+
+                deviceId = getMinKey(nameToMips);
+                /**
+                 * effectue le placement du module sur un device s'il est libre sinon il  fait le placement sur un autre device disponible
+                 */
+
+                if(!currentModuleMap.containsKey(deviceId))
+                {
+                    placedModules.add(moduleName);
+                    modulesToPlace =  getModulesToPlace(placedModules);
+                    FogDevice device = getDeviceById(deviceId);
+                    System.out.println("Placement of operator "+moduleName+ " on device "+device.getName()+ " successful.");
+                }
+                else
+                {
+                    for(Integer module : currentModuleMap.keySet()) {
+                        if (currentModuleMap.get(module) !=null ) {
+                            nameToMips.remove(module);
+                        }
+                    }
+
+                    deviceId =getMinKey(nameToMips);
+                    FogDevice device = getDeviceById(deviceId);
+                    System.out.println("Placement of operator "+moduleName+ " on device "+ device.getName()+ " successful.");
+                    placedModules.add(moduleName);
+                    modulesToPlace =  getModulesToPlace(placedModules);
+
+                }
+
+                currentModuleMap.put(deviceId,moduleName);
+                modulesToPlace.remove(moduleName);
+                orderModule.remove(nameOrder);
+            }
+
+            }
+
+    /**
+     *
+     * @param nameToMips
+     * @return deviceId la clé correspondant à la plus petit valeur
+     */
 
     public int getMinKey(Map<Integer,Double> nameToMips)
     {
@@ -176,7 +190,11 @@ public class ModulePlacementHeft  extends ModulePlacement{
         setModuleRank(rank);
     }
 
-
+    /**
+     *  calcul le rank pour module de l'application
+     * @param appModule
+     * @return list
+     */
 
     public double rankCompute( AppModule appModule) {
         Map<String, Double> currentRank = new HashMap<String, Double>();
@@ -187,7 +205,6 @@ public class ModulePlacementHeft  extends ModulePlacement{
                 rang = edge.getTupleCpuLength() + getApplication().getModuleByName(edge.getDestination()).getMips();
                 currentRank.put( edge.getDestination(),rang);
                 TREEPASSAGE=true;
-
             }
         }
 
@@ -198,7 +215,6 @@ public class ModulePlacementHeft  extends ModulePlacement{
             }
             else
                 return appModule.getMips();
-
         }
 
         else
@@ -211,8 +227,10 @@ public class ModulePlacementHeft  extends ModulePlacement{
 
     }
 
-
-
+    /**
+     * donne une liste ordonnée suivant les valeurs des ranks
+     * @return list
+     */
     public  List<String>  orderModule(){
         Map<String,Double> sortedMap =new TreeMap<String,Double>(getModuleRank());
         Map<String,Double> rang =new HashMap<String, Double>();
@@ -228,6 +246,8 @@ public class ModulePlacementHeft  extends ModulePlacement{
 
         return list;
     }
+
+
 
 
     private List<String> getModulesToPlace(List<String> placedModules){
@@ -246,8 +266,8 @@ public class ModulePlacementHeft  extends ModulePlacement{
 
             for(AppEdge edge : app.getEdges()){
                 //CHECK IF OUTGOING DOWN EDGES ARE PLACED
-               // if(edge.getSource().equals(moduleName) && edge.getDirection()==Tuple.DOWN && placedModules.contains(edge.getDestination()))
-                  //  toBePlaced = false;
+               if(edge.getSource().equals(moduleName) && edge.getDirection()==Tuple.DOWN && placedModules.contains(edge.getDestination()))
+                    toBePlaced = true;
                 //CHECK IF INCOMING UP EDGES ARE PLACED
                 if(edge.getDestination().equals(moduleName) && edge.getDirection()==Tuple.UP && placedModules.contains(edge.getSource()))
                     toBePlaced = true;
@@ -255,41 +275,14 @@ public class ModulePlacementHeft  extends ModulePlacement{
             if(toBePlaced)
                 modulesToPlace.add(moduleName);
         }
-
         return modulesToPlace;
     }
 
 
-    /*
-    public Map<AppModule,FogDevice> placementOnParent(AppModule module, FogDevice fogDevice)
-    {
-        int deviceId=fogDevice
-    }
-*/
-private Map<String, Integer> getAssociatedSensors(FogDevice device) {
-    Map<String, Integer> endpoints = new HashMap<String, Integer>();
-    for(Sensor sensor : getSensors()){
-        if(sensor.getGatewayDeviceId()==device.getId()){
-            if(!endpoints.containsKey(sensor.getTupleType()))
-                endpoints.put(sensor.getTupleType(), 0);
-            endpoints.put(sensor.getTupleType(), endpoints.get(sensor.getTupleType())+1);
-        }
-    }
-    return endpoints;
-}
 
-    private Map<String, Integer> getAssociatedActuators(FogDevice device) {
-        Map<String, Integer> endpoints = new HashMap<String, Integer>();
-        for(Actuator actuator : getActuators()){
-            if(actuator.getGatewayDeviceId()==device.getId()){
-                if(!endpoints.containsKey(actuator.getActuatorType()))
-                    endpoints.put(actuator.getActuatorType(), 0);
-                endpoints.put(actuator.getActuatorType(), endpoints.get(actuator.getActuatorType())+1);
-            }
-        }
-        return endpoints;
+    public void setModuleMapping(ModuleMapping moduleMapping) {
+        this.moduleMapping = moduleMapping;
     }
-
 
     public Map<String, Double> getModuleRank() {
         return moduleRank;

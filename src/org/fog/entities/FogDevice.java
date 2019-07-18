@@ -285,8 +285,6 @@ public class FogDevice extends PowerDatacenter {
 			break;
 		}
 
-
-
 	}
 	
 	/**
@@ -539,7 +537,8 @@ public class FogDevice extends PowerDatacenter {
 		updateEnergyConsumption();
 		
 	}
-	
+
+
 	private void updateEnergyConsumption() {
 		double totalMipsAllocated = 0;
 		for(final Vm vm : getHost().getVmList()){
@@ -569,6 +568,7 @@ public class FogDevice extends PowerDatacenter {
 		lastUtilization = Math.min(1, totalMipsAllocated/getHost().getTotalMips());
 		lastUtilizationUpdateTime = timeNow;
 	}
+
 
 	protected void processAppSubmit(SimEvent ev) {
 		Application app = (Application)ev.getData();

@@ -1,19 +1,29 @@
 package org.fog.test.perfeval;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Pe;
 import org.cloudbus.cloudsim.Storage;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.power.PowerHost;
-import org.cloudbus.cloudsim.power.models.PowerModel;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
 import org.cloudbus.cloudsim.sdn.overbooking.BwProvisionerOverbooking;
 import org.cloudbus.cloudsim.sdn.overbooking.PeProvisionerOverbooking;
 import org.fog.application.AppEdge;
-import org.fog.application.AppModule;
+import org.fog.application.AppLoop;
 import org.fog.application.Application;
-import org.fog.entities.*;
+import org.fog.application.selectivity.FractionalSelectivity;
+import org.fog.entities.Actuator;
+import org.fog.entities.FogBroker;
+import org.fog.entities.FogDevice;
+import org.fog.entities.FogDeviceCharacteristics;
+import org.fog.entities.Sensor;
+import org.fog.entities.Tuple;
 import org.fog.placement.*;
 import org.fog.policy.AppModuleAllocationPolicy;
 import org.fog.scheduler.StreamOperatorScheduler;
@@ -22,46 +32,49 @@ import org.fog.utils.FogUtils;
 import org.fog.utils.TimeKeeper;
 import org.fog.utils.distribution.DeterministicDistribution;
 
-import java.util.*;
-
+/**
+ * Simulation setup for case study 1 - EEG Beam Tractor Game
+ * @author Harshit Gupta
+ *
+ */
 public class SimFog {
+    static List<FogDevice> fogDevices = new ArrayList<FogDevice>();
+    static List<Sensor> sensors = new ArrayList<Sensor>();
+    static List<Actuator> actuators = new ArrayList<Actuator>();
 
-    public static List<Application> applications=new ArrayList<Application>();
-    public static  List<FogDevice> fogdevices=new ArrayList<FogDevice>() ;
-    public static List<Sensor> sensors=new ArrayList<Sensor>();
-    public static  List<Actuator> actuators= new ArrayList<Actuator>();
-    static int  nombreGateway = 3;
-    static int  nombreMobile = 2;
-    public static int TRANSMISSION=5;
+    static boolean CLOUD = false;
 
+    static int numOfDepts = 4;
+    static int numOfMobilesPerDept = 6;
+    static double EEG_TRANSMISSION_TIME = 5.1;
+    //static double EEG_TRANSMISSION_TIME = 10;
 
-    public static void main(String[] args){
-        try
-        {
+    public static void main(String[] args) {
+
+        Log.printLine("Starting VRGame...");
+
+        try {
             Log.disable();
             int num_user = 1; // number of cloud users
             Calendar calendar = Calendar.getInstance();
             boolean trace_flag = false; // mean trace events
+
             CloudSim.init(num_user, calendar, trace_flag);
-            String appId = "Mygame"; // identifier of the application
+
+            String appId = "vr_game"; // identifier of the application
 
             FogBroker broker = new FogBroker("broker");
+            Application application = ApplicationGraph.createApplication5(appId, broker.getId());
+            application.setUserId(broker.getId());
+            createFogDevices(broker.getId(), appId);
 
-// creation du graphe des applications avec l'ensemble des modules et des arcs
+            ModuleMapping moduleMapping = ModuleMapping.createModuleMapping(); // initializing a module mapping
 
-            applications.add((new ApplicationMasterSlave(appId,broker.getId())).getApplication());
-
-// creation des devices
-
-            creationFogDevice(broker.getId(),appId);
-            //new ModulePlacementHeft(fogdevices,sensors,actuators,applications.get(0));
-
-
-            Controller controller = new Controller("master-controller", fogdevices, sensors,
+            Controller controller = new Controller("master-controller", fogDevices, sensors,
                     actuators);
 
-
-            controller.submitApplication(applications.get(0), 0,new ModulePlacementHeft(fogdevices, sensors, actuators,applications.get(0)));
+            controller.submitApplication(application, 0,
+                    new ModulePlacementHeft(fogDevices, sensors, actuators, application));
 
 
 
@@ -74,65 +87,78 @@ public class SimFog {
             Log.printLine("VRGame finished!");
 
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             Log.printLine("Unwanted errors happen");
+
         }
 
-
-
     }
-    /* creation l'architecture globale avec le cloud,proxy,gateway,mobiles
-    *@param userId
-    *@param appId
-    *return
+
+    /**
+     * Creates the fog devices in the physical topology of the simulation.
+     * @param userId
+     * @param appId
      */
+    private static void createFogDevices(int userId, String appId) {
+        FogDevice cloud = createFogDevice("cloud", 44800, 40000, 100, 10000, 0, 0.01, 16*103, 16*83.25); // creates the fog device Cloud at the apex of the hierarchy with level=0
+        cloud.setParentId(-1);
+        FogDevice proxy = createFogDevice("proxy-server", 2800, 4000, 10000, 10000, 1, 0.0, 107.339, 83.4333); // creates the fog device Proxy Server (level=1)
+        proxy.setParentId(cloud.getId()); // setting Cloud as parent of the Proxy Server
+        proxy.setUplinkLatency(100); // latency of connection from Proxy Server to the Cloud is 100 ms
 
-public  static void creationFogDevice(int userId,String appId){
-    FogDevice cloud =createFogDevice("cloud",1500,10,1250,1000,0,0.5,50,40);
-    cloud.setParentId(1);
-    fogdevices.add(cloud);
-    FogDevice proxy =createFogDevice("proxy-server",1200,8,1500,1250,1,0.5,35,45);
-    proxy.setParentId(cloud.getId());
-    fogdevices.add(proxy);
-for (int i=0;i<nombreGateway;i++)
-    addGateway(i,userId,appId,cloud.getId());
-}
+        fogDevices.add(cloud);
+        fogDevices.add(proxy);
 
-
-    public  static void addGateway(int id, int userId, String appId,int parentId){
-        FogDevice gateway =createFogDevice("d-"+id,1000,5,1600,1000,2,0.5,45,25);
-        gateway.setParentId(parentId);
-        fogdevices.add(gateway);
-        for (int i=0;i<nombreMobile;i++){
-            String IdName = id+"-"+i;
-            addMoblie(IdName, userId, appId, gateway.getId());
+        for(int i=0;i<numOfDepts;i++){
+            addGw(i+"", userId, appId, proxy.getId()); // adding a fog device for every Gateway in physical topology. The parent of each gateway is the Proxy Server
         }
 
-
-
     }
 
+    private static FogDevice addGw(String id, int userId, String appId, int parentId){
+        FogDevice dept = createFogDevice("d-"+id, 2800, 4000, 10000, 10000, 1, 0.0, 107.339, 83.4333);
+        fogDevices.add(dept);
+        dept.setParentId(parentId);
+        dept.setUplinkLatency(4); // latency of connection between gateways and proxy server is 4 ms
+        for(int i=0;i<numOfMobilesPerDept;i++){
+            String mobileId = id+"-"+i;
+            FogDevice mobile = addMobile(mobileId, userId, appId, dept.getId()); // adding mobiles to the physical topology. Smartphones have been modeled as fog devices as well.
+            mobile.setUplinkLatency(2); // latency of connection between the smartphone and proxy server is 4 ms
+            fogDevices.add(mobile);
+        }
+        return dept;
+    }
 
-   public  static void  addMoblie(String id,int userId,String appId,int parentId){
-        FogDevice mobile=createFogDevice("m-"+id,500,4,1200,1400,3,0.5,35,30);
+    private static FogDevice addMobile(String id, int userId, String appId, int parentId){
+        FogDevice mobile = createFogDevice("m-"+id, 1000, 1000, 10000, 270, 3, 0, 87.53, 82.44);
         mobile.setParentId(parentId);
-        fogdevices.add(mobile);
-        Sensor sensor=new Sensor("s-"+id,"Sensor",userId,appId, new DeterministicDistribution(TRANSMISSION));
-        sensor.setGatewayDeviceId(mobile.getId());
-        sensors.add(sensor);
-        Actuator actuator =new Actuator("a-"+id,userId,appId,"Actuator");
-        actuator.setGatewayDeviceId(mobile.getId());
-        actuators.add(actuator);
-       sensor.setGatewayDeviceId(mobile.getId());
-       sensor.setLatency(6.0);  // latency of connection between EEG sensors and the parent Smartphone is 6 ms
-       actuator.setGatewayDeviceId(mobile.getId());
-       actuator.setLatency(1.0);  // latency of connection between Display actuator and the parent Smartphone is 1 ms
+        Sensor eegSensor = new Sensor("s-"+id, "EEG", userId, appId, new DeterministicDistribution(EEG_TRANSMISSION_TIME)); // inter-transmission time of EEG sensor follows a deterministic distribution
+        sensors.add(eegSensor);
+        Actuator display = new Actuator("a-"+id, userId, appId, "DISPLAY");
+        actuators.add(display);
+        eegSensor.setGatewayDeviceId(mobile.getId());
+        eegSensor.setLatency(6.0);  // latency of connection between EEG sensors and the parent Smartphone is 6 ms
+        display.setGatewayDeviceId(mobile.getId());
+        display.setLatency(1.0);  // latency of connection between Display actuator and the parent Smartphone is 1 ms
+        return mobile;
     }
 
-
+    /**
+     * Creates a vanilla fog device
+     * @param nodeName name of the device to be used in simulation
+     * @param mips MIPS
+     * @param ram RAM
+     * @param upBw uplink bandwidth
+     * @param downBw downlink bandwidth
+     * @param level hierarchy level of the device
+     * @param ratePerMips cost rate per MIPS used
+     * @param busyPower
+     * @param idlePower
+     * @return
+     */
     private static FogDevice createFogDevice(String nodeName, long mips,
-                                              int ram, long upBw, long downBw, int level, double ratePerMips, double busyPower, double idlePower) {
+                                             int ram, long upBw, long downBw, int level, double ratePerMips, double busyPower, double idlePower) {
 
         List<Pe> peList = new ArrayList<Pe>();
 
@@ -183,6 +209,13 @@ for (int i=0;i<nombreGateway;i++)
         fogdevice.setLevel(level);
         return fogdevice;
     }
+
+    /**
+     * Function to create the EEG Tractor Beam game application in the DDF model.
+     * @param appId unique identifier of the application
+     * @param userId identifier of the user of the application
+     * @return
+     */
 
 
 }
