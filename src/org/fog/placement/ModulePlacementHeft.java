@@ -104,14 +104,13 @@ public class ModulePlacementHeft  extends ModulePlacement{
     public void getHeftPlacement(List<String> placedModules)
 
     {
-        List<String> modulesToPlace =  getModulesToPlace(placedModules);
-        List<String> orderModule = orderModule();
-        while(modulesToPlace.size()>0)
+         List<String> orderModule = orderModule();
+
+        while(orderModule.size()>0)
         {
             Map<Integer, Double>  nameToMips = new HashMap<Integer,Double>();
             double mipsRate =0;
-            String  moduleName = modulesToPlace.get(0);
-            String nameOrder= orderModule.get(0);
+            String  moduleName = orderModule.get(0);
 
                 /**
                  * Calcul la proportion des mips pour chaque device.**Choix du device avec la proportion minimale
@@ -130,6 +129,70 @@ public class ModulePlacementHeft  extends ModulePlacement{
                 /**
                  * effectue le placement du module sur un device s'il est libre sinon il  fait le placement sur un autre device disponible
                  */
+
+                if(!currentModuleMap.containsKey(deviceId))
+                {
+                    orderModule.remove(moduleName);
+                    FogDevice device = getDeviceById(deviceId);
+                    System.out.println("Placement of operator "+moduleName+ " on device "+device.getName()+ " successful.");
+                }
+                else
+                {
+                    for(Integer module : currentModuleMap.keySet()) {
+                        if (currentModuleMap.get(module) !=null ) {
+                            nameToMips.remove(module);
+                        }
+                    }
+
+                    deviceId =getMinKey(nameToMips);
+                    FogDevice device = getDeviceById(deviceId);
+                    System.out.println("Placement of operator "+moduleName+ " on device "+ device.getName()+ " successful.");
+                    orderModule.remove(moduleName);
+
+                }
+
+                currentModuleMap.put(deviceId,moduleName);
+            }
+
+            }
+
+
+
+
+            /*
+
+            public void getHeftPlacement(List<String> placedModules)
+
+    {
+        List<String> modulesToPlace =  getModulesToPlace(placedModules);
+        List<String> orderModule = orderModule();
+
+        while(modulesToPlace.size()>0)
+        {
+            Map<Integer, Double>  nameToMips = new HashMap<Integer,Double>();
+            double mipsRate =0;
+            String  moduleName = modulesToPlace.get(0);
+            String nameOrder= orderModule.get(0);
+
+                /**
+                 * Calcul la proportion des mips pour chaque device.**Choix du device avec la proportion minimale
+                 */
+            /*
+                AppModule _module = getApplication().getModuleByName(moduleName);
+                for(FogDevice fogDevice : getFogDevices())
+                {
+                    mipsRate= _module.getMips()/fogDevice.getVmAllocationPolicy().getHostList().get(0).getPeList().get(0).getPeProvisioner().getMips();
+
+                    nameToMips.put(fogDevice.getId(),mipsRate);
+                }
+                int deviceId=0;
+
+
+                deviceId = getMinKey(nameToMips);
+                /**
+                 * effectue le placement du module sur un device s'il est libre sinon il  fait le placement sur un autre device disponible
+                 */
+            /*
 
                 if(!currentModuleMap.containsKey(deviceId))
                 {
@@ -160,6 +223,7 @@ public class ModulePlacementHeft  extends ModulePlacement{
             }
 
             }
+            */
 
     /**
      *
@@ -176,6 +240,19 @@ public class ModulePlacementHeft  extends ModulePlacement{
                 deviceId=key;
 
       return deviceId;
+    }
+
+
+    public String getMinModuleName(Map<String,Double> nameToMips)
+    {
+        Map<String ,Double> map = new HashMap< String, Double>(nameToMips);
+        String moduleName =null;
+        double bestDevice = Collections.max(map.values());
+        for(String  key :map.keySet())
+            if(map.get(key).equals(bestDevice))
+                moduleName=key;
+      return moduleName;
+
     }
 
 
@@ -232,19 +309,15 @@ public class ModulePlacementHeft  extends ModulePlacement{
      * @return list
      */
     public  List<String>  orderModule(){
-        Map<String,Double> sortedMap =new TreeMap<String,Double>(getModuleRank());
-        Map<String,Double> rang =new HashMap<String, Double>();
-        List<String> list = new ArrayList<String>();
-        Set set=sortedMap.entrySet();
-        Iterator iterator=set.iterator();
+        List<String>  list= new ArrayList<>();
+        Map< String,Double> map = new HashMap<>(moduleRank);
+        while(map.size()>0)
+        {   String name= getMinModuleName(map);
+            list.add(name);
+            map.remove(name);
 
-        while(iterator.hasNext())
-        {
-            Map.Entry entry= (Map.Entry) iterator.next();
-            list.add((String) entry.getKey());
         }
-
-        return list;
+        return list ;
     }
 
 

@@ -64,7 +64,7 @@ public class SimFog {
             String appId = "vr_game"; // identifier of the application
 
             FogBroker broker = new FogBroker("broker");
-            Application application = ApplicationGraph.createApplication5(appId, broker.getId());
+            Application application = ApplicationGraph.createApplication8(appId, broker.getId());
             application.setUserId(broker.getId());
             createFogDevices(broker.getId(), appId);
 
@@ -74,7 +74,7 @@ public class SimFog {
                     actuators);
 
             controller.submitApplication(application, 0,
-                    new ModulePlacementHeft(fogDevices, sensors, actuators, application));
+                    new ModulePlacementCpop(fogDevices, sensors, actuators, application));
 
 
 
