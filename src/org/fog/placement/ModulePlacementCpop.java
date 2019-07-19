@@ -128,7 +128,7 @@ public class ModulePlacementCpop  extends ModulePlacement{
             currentModuleMap.put(deviceId,criticalPath.get(0));
         }
 
-        while(noCriticalPath.size()>0)
+        while(_orderModule.size()>0)
         {
             Map<Integer, Double>  nameToMips = new HashMap<Integer,Double>();
             double mipsRate =0;
@@ -170,7 +170,6 @@ public class ModulePlacementCpop  extends ModulePlacement{
                 noCriticalPath.remove(moduleName);
 
             }
-
             currentModuleMap.put(deviceId,moduleName);
         }
 
@@ -251,7 +250,7 @@ public class ModulePlacementCpop  extends ModulePlacement{
                 return 0;
             }
             else
-                return appModule.getMips();
+                return 0;//appModule.getMips();
         }
         else
         {   Map<String,Double> sortedMapDownward =new TreeMap<String, Double>(currentRankDownward);
@@ -295,22 +294,16 @@ public class ModulePlacementCpop  extends ModulePlacement{
      * @return list
      */
     public  void  orderModule(){
-        Map< String,Double> map = new HashMap<>(priority);
-        Double valeur= map.get("client");
-        while(map.size()>0)
-        {  String name= getMinModuleName(map);
-            if(map.get(name)==valeur)
-            {
-                criticalPath.add(name);
-                map.remove(name);
-            }
+        Map<String,Double> map = new HashMap<>(priority);
+        Double value =map.get("client");
+      for (AppModule module :getApplication().getModules())
+        {
+            if( map.get(module.getName()).equals(value))
+                 criticalPath.add(module.getName());
             else
-            {   noCriticalPath.add(name);
-                map.remove(name);
-            }
+               noCriticalPath.add(module.getName());
 
         }
-
     }
 
 
