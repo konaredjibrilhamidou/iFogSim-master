@@ -8,6 +8,8 @@ import org.fog.entities.FogDevice;
 import org.fog.entities.Sensor;
 import org.fog.entities.Tuple;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 public class ModulePlacementHeft  extends ModulePlacement{
@@ -38,7 +40,7 @@ public class ModulePlacementHeft  extends ModulePlacement{
     public ModulePlacementHeft(List<FogDevice> fogdevices, List<Sensor> sensors, List<Actuator> actuators, Application applications ) {
         this.setFogDevices(fogdevices);
         this.setApplication(applications);
-       this.setActuators(actuators);
+        this.setActuators(actuators);
         this.setSensors(sensors);
         this.setModuleToDeviceMap(new HashMap<String, List<Integer>>());
         this.setDeviceToModuleMap(new HashMap<Integer, List<AppModule>>());
@@ -52,20 +54,14 @@ public class ModulePlacementHeft  extends ModulePlacement{
             getCurrentModuleMap().put(dev.getId(),null);
             getCurrentModuleInstanceNum().put(dev.getId(), new HashMap<String, Integer>());
         }
-        long starTime = System.currentTimeMillis();
-
-        listScheduling();
         mapModules();
-
-        long endTime = System.currentTimeMillis();
-        System.out.println("Algorithme Time-----> "+ (endTime-starTime));
     }
-
 
 
 
     @Override
     protected void mapModules() {
+        listScheduling();
         /**
          * ajout des sensors et des actuators aux modules à placer
          */
@@ -119,7 +115,6 @@ public class ModulePlacementHeft  extends ModulePlacement{
                 for(FogDevice fogDevice : getFogDevices())
                 {
                     mipsRate= _module.getMips()/fogDevice.getVmAllocationPolicy().getHostList().get(0).getPeList().get(0).getPeProvisioner().getMips();
-
                     nameToMips.put(fogDevice.getId(),mipsRate);
                 }
                 int deviceId=0;
@@ -155,9 +150,6 @@ public class ModulePlacementHeft  extends ModulePlacement{
             }
 
             }
-
-
-
 
             /*
 

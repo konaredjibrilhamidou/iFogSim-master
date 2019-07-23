@@ -85,15 +85,12 @@ public class ModulePlacementCpop  extends ModulePlacement{
 
     }
 
-
-
     public void getHeftPlacement()
 
     {
         orderModule();
         List <String> orderModule = criticalPath;
         List <String> _orderModule = noCriticalPath;
-
 
         if(orderModule.size()>0)
         {

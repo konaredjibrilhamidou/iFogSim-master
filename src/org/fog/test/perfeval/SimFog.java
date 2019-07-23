@@ -1,5 +1,7 @@
 package org.fog.test.perfeval;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
@@ -44,17 +46,17 @@ public class SimFog {
 
     static boolean CLOUD = false;
 
-    static int numOfDepts = 4;
-    static int numOfMobilesPerDept = 6;
+    static int numOfDepts = 5;//4
+    static int numOfMobilesPerDept = 10;//6
     static double EEG_TRANSMISSION_TIME = 5.1;
     //static double EEG_TRANSMISSION_TIME = 10;
 
     public static void main(String[] args) {
 
         Log.printLine("Starting VRGame...");
-
         try {
             Log.disable();
+
             int num_user = 1; // number of cloud users
             Calendar calendar = Calendar.getInstance();
             boolean trace_flag = false; // mean trace events
@@ -64,7 +66,7 @@ public class SimFog {
             String appId = "vr_game"; // identifier of the application
 
             FogBroker broker = new FogBroker("broker");
-            Application application = ApplicationGraph.createApplication6(appId, broker.getId());
+            Application application = ApplicationGraph.createApplication1(appId, broker.getId());
             application.setUserId(broker.getId());
             createFogDevices(broker.getId(), appId);
 
@@ -74,7 +76,7 @@ public class SimFog {
                     actuators);
 
             controller.submitApplication(application, 0,
-                    new ModulePlacementCpop(fogDevices, sensors, actuators, application));
+                    new ModulePlacementHeft(fogDevices, sensors, actuators, application));
 
 
 
@@ -83,6 +85,8 @@ public class SimFog {
             CloudSim.startSimulation();
 
             CloudSim.stopSimulation();
+
+
 
             Log.printLine("VRGame finished!");
 
@@ -101,12 +105,11 @@ public class SimFog {
      * @param appId
      */
     private static void createFogDevices(int userId, String appId) {
-        FogDevice cloud = createFogDevice("cloud", 44800, 40000, 100, 10000, 0, 0.01, 16*103, 16*83.25); // creates the fog device Cloud at the apex of the hierarchy with level=0
+        FogDevice cloud = createFogDevice("cloud", 44800, 4000, 100, 10000, 0, 0.01, 16*103, 16*83.25); // creates the fog device Cloud at the apex of the hierarchy with level=0
         cloud.setParentId(-1);
         FogDevice proxy = createFogDevice("proxy-server", 2800, 4000, 10000, 10000, 1, 0.0, 107.339, 83.4333); // creates the fog device Proxy Server (level=1)
         proxy.setParentId(cloud.getId()); // setting Cloud as parent of the Proxy Server
         proxy.setUplinkLatency(100); // latency of connection from Proxy Server to the Cloud is 100 ms
-
         fogDevices.add(cloud);
         fogDevices.add(proxy);
 

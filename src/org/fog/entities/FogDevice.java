@@ -39,6 +39,7 @@ import org.fog.utils.NetworkUsageMonitor;
 import org.fog.utils.TimeKeeper;
 
 public class FogDevice extends PowerDatacenter {
+
 	protected Queue<Tuple> northTupleQueue;
 	protected Queue<Pair<Tuple, Integer>> southTupleQueue;
 	
@@ -552,8 +553,7 @@ public class FogDevice extends PowerDatacenter {
 		double currentEnergyConsumption = getEnergyConsumption();
 		double newEnergyConsumption = currentEnergyConsumption + (timeNow-lastUtilizationUpdateTime)*getHost().getPowerModel().getPower(lastUtilization);
 		setEnergyConsumption(newEnergyConsumption);
-
-	/*
+/*
 		if(getName().equals("d-0")){
 			System.out.println("------------------------");
 			System.out.println("Utilization = "+lastUtilization);
@@ -561,6 +561,7 @@ public class FogDevice extends PowerDatacenter {
 			System.out.println(timeNow-lastUtilizationUpdateTime);
 		}
 		*/
+
 		double currentCost = getTotalCost();
 		double newcost = currentCost + (timeNow-lastUtilizationUpdateTime)*getRatePerMips()*lastUtilization*getHost().getTotalMips();
 		setTotalCost(newcost);
