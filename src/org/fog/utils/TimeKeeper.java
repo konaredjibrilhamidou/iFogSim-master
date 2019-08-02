@@ -1,5 +1,6 @@
 package org.fog.utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,14 @@ public class TimeKeeper {
 	
 	private Map<Integer, Double> loopIdToCurrentAverage;
 	private Map<Integer, Integer> loopIdToCurrentNum;
+
+
+
+	/***
+	 * djibril
+	 * @return
+	 */
+	private Map<String, List<Double>> executionTimeModule;
 	
 	public static TimeKeeper getInstance(){
 		if(instance == null)
@@ -35,6 +44,7 @@ public class TimeKeeper {
 	
 	public void tupleStartedExecution(Tuple tuple){
 		tupleIdToCpuStartTime.put(tuple.getCloudletId(), CloudSim.clock());
+
 	}
 	
 	public void tupleEndedExecution(Tuple tuple){
@@ -50,7 +60,8 @@ public class TimeKeeper {
 			tupleTypeToAverageCpuTime.put(tuple.getTupleType(), (currentAverage*currentCount+executionTime)/(currentCount+1));
 		}
 	}
-	
+
+
 	public Map<Integer, List<Integer>> loopIdToTupleIds(){
 		return getInstance().getLoopIdToTupleIds();
 	}
@@ -65,6 +76,7 @@ public class TimeKeeper {
 		setTupleIdToCpuStartTime(new HashMap<Integer, Double>());
 		setLoopIdToCurrentAverage(new HashMap<Integer, Double>());
 		setLoopIdToCurrentNum(new HashMap<Integer, Integer>());
+		setExecutionTimeModule(new HashMap<String, List<Double>>());
 	}
 	
 	public int getCount() {
@@ -148,6 +160,13 @@ public class TimeKeeper {
 	public void setLoopIdToCurrentNum(Map<Integer, Integer> loopIdToCurrentNum) {
 		this.loopIdToCurrentNum = loopIdToCurrentNum;
 	}
-	
+
+	public Map<String, List<Double>> getExecutionTimeModule() {
+		return executionTimeModule;
+	}
+
+	public void setExecutionTimeModule(Map<String, List<Double>> executionTimeModule) {
+		this.executionTimeModule = executionTimeModule;
+	}
 	
 }

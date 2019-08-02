@@ -30,6 +30,16 @@ public class Controller extends SimEntity{
 	private Map<String, Integer> appLaunchDelays;
 
 	private Map<String, ModulePlacement> appModulePlacementPolicy;
+
+
+	/*
+	public double cloudEnergy=0.0;
+	public double gatewayEnergy=0.0;
+	public double mobileEnergy=0.0;
+
+
+	 */
+
 	
 	public Controller(String name, List<FogDevice> fogDevices, List<Sensor> sensors, List<Actuator> actuators) {
 		super(name);
@@ -124,8 +134,26 @@ public class Controller extends SimEntity{
 	
 	private void printPowerDetails() {
 		for(FogDevice fogDevice : getFogDevices()){
+/*
+				if(fogDevice.getName().startsWith("m"))
+					mobileEnergy =mobileEnergy+ fogDevice.getEnergyConsumption();
+
+				if(fogDevice.getName().startsWith("d"))
+					gatewayEnergy =gatewayEnergy+fogDevice.getEnergyConsumption();
+
+				if(fogDevice.getName().startsWith("c") || fogDevice.getName().equals("proxy-server"))
+					cloudEnergy = cloudEnergy+fogDevice.getEnergyConsumption();
+
+*/
+
 			System.out.println(fogDevice.getName() + " : Energy Consumed = "+fogDevice.getEnergyConsumption());
 		}
+/*
+		System.out.println("Cloud-Proxy Energy Consumed = "+ ((int)cloudEnergy));
+		System.out.println("Gateways Energy Consumed = "+((int)gatewayEnergy ));
+		System.out.println("Mobiles Energy Consumed = "+((int)mobileEnergy));
+
+ */
 	}
 
 
@@ -139,6 +167,7 @@ public class Controller extends SimEntity{
 		}
 		return null;
 	}
+
 	private void printTimeDetails() {
 		System.out.println("=========================================");
 		System.out.println("============== RESULTS ==================");
@@ -169,6 +198,11 @@ public class Controller extends SimEntity{
 		}
 		
 		System.out.println("=========================================");
+
+		for(String moduleName : TimeKeeper.getInstance().getExecutionTimeModule().keySet())
+			System.out.println(moduleName + " ---> "+ TimeKeeper.getInstance().getExecutionTimeModule().get(moduleName));
+		System.out.println("=========================================");
+
 	}
 
 	protected void manageResources(){
@@ -225,7 +259,7 @@ public class Controller extends SimEntity{
 		for(FogDevice fogDevice : fogDevices){
 			sendNow(fogDevice.getId(), FogEvents.ACTIVE_APP_UPDATE, application);
 		}
-		
+
 		Map<Integer, List<AppModule>> deviceToModuleMap = modulePlacement.getDeviceToModuleMap();
 		for(Integer deviceId : deviceToModuleMap.keySet()){
 			for(AppModule module : deviceToModuleMap.get(deviceId)){
@@ -233,6 +267,9 @@ public class Controller extends SimEntity{
 				sendNow(deviceId, FogEvents.LAUNCH_MODULE, module);
 			}
 		}
+
+
+
 	}
 
 	public List<FogDevice> getFogDevices() {

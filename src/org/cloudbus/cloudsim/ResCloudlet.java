@@ -282,14 +282,18 @@ public class ResCloudlet {
 	 * @pre status >= 0
 	 * @post $none
 	 */
+
+
 	public boolean setCloudletStatus(int status) {
 		// gets Cloudlet's previous status
 		int prevStatus = cloudlet.getCloudletStatus();
 
 		// if the status of a Cloudlet is the same as last time, then ignore
+
 		if (prevStatus == status) {
 			return false;
 		}
+
 
 		boolean success = true;
 		try {
@@ -308,6 +312,15 @@ public class ResCloudlet {
 					return true;
 				}
 			}
+/*
+			if (prevStatus == Cloudlet.RESUMED || status == Cloudlet.SUCCESS || status==Cloudlet.INEXEC) {
+				// then update the Cloudlet completion time
+				totalCompletionTime += (clock - startExecTime);
+				return true;
+			}
+
+ */
+
 
 			if (prevStatus == Cloudlet.RESUMED && status == Cloudlet.SUCCESS) {
 				// then update the Cloudlet completion time

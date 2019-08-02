@@ -56,18 +56,15 @@ public class ModulePlacementCpop  extends ModulePlacement{
             getCurrentModuleMap().put(dev.getId(),null);
             getCurrentModuleInstanceNum().put(dev.getId(), new HashMap<String, Integer>());
         }
-        long starTime = System.currentTimeMillis();
 
-        listScheduling();
         mapModules();
-        long endTime = System.currentTimeMillis();
-        System.out.println("Algorithme Time-----> "+ (endTime-starTime));
     }
 
 
 
     @Override
     protected void mapModules() {
+        listScheduling();
         /**
          * ajout des sensors et des actuators aux modules à placer
          */
@@ -179,9 +176,10 @@ public class ModulePlacementCpop  extends ModulePlacement{
         Map<String, Double> rankDownward= new HashMap<String, Double>();
         Map<String, Double> _priority= new HashMap<String, Double>();
 
-
         for(AppModule module : getApplication().getModules())
-        {   rankDownward.put(module.getName(),rankDownward(module));
+
+        {
+            rankDownward.put(module.getName(),rankDownward(module));
             rankUpward.put(module.getName(),rankUpward(module));
             _priority.put(module.getName(),rankUpward(module)+rankDownward(module));
 
@@ -230,15 +228,21 @@ public class ModulePlacementCpop  extends ModulePlacement{
 
 
     public double rankDownward(AppModule appModule) {
+
         Map<String, Double> currentRankDownward= new HashMap<String, Double>();
-        double rang ;
+        double rang=0 ;
         for (AppEdge edge : getApplication().getEdges()) {
             if (edge.getSource()!="EEG")
-                if (edge.getDestination().contentEquals(appModule.getName()) & (Tuple.UP == edge.getDirection())) {
+                try {
+                if (edge.getDestination().equalsIgnoreCase(appModule.getName()) & (Tuple.UP == edge.getDirection())) {
                     rang = edge.getTupleCpuLength() + getApplication().getModuleByName(edge.getDestination()).getMips();
-                    currentRankDownward.put( edge.getSource(),rang);
+                        currentRankDownward.put(edge.getSource(),rang);
                     TREEPASSAGE=true;
             }
+                } catch(NullPointerException e)
+                {
+                    continue;
+                }
         }
 
         if (currentRankDownward.isEmpty() ) {

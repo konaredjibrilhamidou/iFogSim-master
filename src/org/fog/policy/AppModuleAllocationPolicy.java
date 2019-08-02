@@ -33,7 +33,6 @@ public class AppModuleAllocationPolicy extends VmAllocationPolicy{
 		
 		return result;
 
-
 	}
 
 	@Override

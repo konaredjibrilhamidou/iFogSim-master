@@ -517,11 +517,9 @@ public class CloudSim {
 			ent = entities.get(i);
 			if (ent.getState() == SimEntity.RUNNABLE) {
 				ent.run();
-
 			}
 
 		}
-
 
 		// If there are more future events then deal with them
 
@@ -891,19 +889,19 @@ public class CloudSim {
 	 * and added, and their ports linked.
 	 * 
 	 * @return the double last clock value
+	 *
 	 */
-	public static double run() {
 
+	public static double run() {
 		if (!running) {
 			runStart();
 		}
 		while (true) {
 
-
-
 			if (runClockTick() || abruptTerminate) {
 				break;
 			}
+
 			// this block allows termination of simulation at a specific time
 			if (terminateAt > 0.0 && clock >= terminateAt) {
 				terminateSimulation();

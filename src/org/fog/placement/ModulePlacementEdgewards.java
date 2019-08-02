@@ -16,6 +16,7 @@ import org.fog.entities.FogDevice;
 import org.fog.entities.Sensor;
 import org.fog.entities.Tuple;
 import org.fog.utils.Logger;
+import org.fog.utils.TimeKeeper;
 
 public class ModulePlacementEdgewards extends ModulePlacement{
 	
@@ -81,6 +82,8 @@ public class ModulePlacementEdgewards extends ModulePlacement{
 		for(int deviceId : getCurrentModuleMap().keySet()){
 			for(String module : getCurrentModuleMap().get(deviceId)){
 				createModuleInstanceOnDevice(getApplication().getModuleByName(module), getFogDeviceById(deviceId));
+				TimeKeeper.getInstance().getExecutionTimeModule().put(module,0.0);
+
 			}
 		}
 	}

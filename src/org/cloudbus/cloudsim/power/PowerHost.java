@@ -34,7 +34,7 @@ import org.cloudbus.cloudsim.provisioners.RamProvisioner;
 public class PowerHost extends HostDynamicWorkload {
 
 	/** The power model. */
-	private PowerModel powerModel;
+	public  PowerModel powerModel;
 
 	/**
 	 * Instantiates a new host.

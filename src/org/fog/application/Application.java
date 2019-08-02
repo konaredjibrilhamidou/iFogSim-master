@@ -197,39 +197,17 @@ public class Application {
 		AppModule module = getModuleByName(moduleName);
 		for(AppEdge edge : getEdges()){
 			if(edge.getSource().equals(moduleName)){
+
 				Pair<String, String> pair = new Pair<String, String>(inputTuple.getTupleType(), edge.getTupleType());
-				
-				if(module.getSelectivityMap().get(pair)==null)
+
+				if(module.getSelectivityMap().get(pair) == null )
 					continue;
 				SelectivityModel selectivityModel = module.getSelectivityMap().get(pair);
 				if(selectivityModel.canSelect()){
 					//TODO check if the edge is ACTUATOR, then create multiple tuples
 					if(edge.getEdgeType() == AppEdge.ACTUATOR){
 						//for(Integer actuatorId : module.getActuatorSubscriptions().get(edge.getTupleType())){
-							Tuple tuple = new Tuple(appId, FogUtils.generateTupleId(), edge.getDirection(),  
-									(long) (edge.getTupleCpuLength()),
-									inputTuple.getNumberOfPes(),
-									(long) (edge.getTupleNwLength()),
-									inputTuple.getCloudletOutputSize(),
-									inputTuple.getUtilizationModelCpu(),
-									inputTuple.getUtilizationModelRam(),
-									inputTuple.getUtilizationModelBw()
-									);
-							tuple.setActualTupleId(inputTuple.getActualTupleId());
-							tuple.setUserId(inputTuple.getUserId());
-							tuple.setAppId(inputTuple.getAppId());
-							tuple.setDestModuleName(edge.getDestination());
-							tuple.setSrcModuleName(edge.getSource());
-							tuple.setDirection(Tuple.ACTUATOR);
-							tuple.setTupleType(edge.getTupleType());
-							tuple.setSourceDeviceId(sourceDeviceId);
-							tuple.setSourceModuleId(sourceModuleId);
-							//tuple.setActuatorId(actuatorId);
-							
-							tuples.add(tuple);
-						//}
-					}else{
-						Tuple tuple = new Tuple(appId, FogUtils.generateTupleId(), edge.getDirection(),  
+						Tuple tuple = new Tuple(appId, FogUtils.generateTupleId(), edge.getDirection(),
 								(long) (edge.getTupleCpuLength()),
 								inputTuple.getNumberOfPes(),
 								(long) (edge.getTupleNwLength()),
@@ -237,7 +215,29 @@ public class Application {
 								inputTuple.getUtilizationModelCpu(),
 								inputTuple.getUtilizationModelRam(),
 								inputTuple.getUtilizationModelBw()
-								);
+						);
+						tuple.setActualTupleId(inputTuple.getActualTupleId());
+						tuple.setUserId(inputTuple.getUserId());
+						tuple.setAppId(inputTuple.getAppId());
+						tuple.setDestModuleName(edge.getDestination());
+						tuple.setSrcModuleName(edge.getSource());
+						tuple.setDirection(Tuple.ACTUATOR);
+						tuple.setTupleType(edge.getTupleType());
+						tuple.setSourceDeviceId(sourceDeviceId);
+						tuple.setSourceModuleId(sourceModuleId);
+						//tuple.setActuatorId(actuatorId);
+						tuples.add(tuple);
+						//}
+					}else{
+						Tuple tuple = new Tuple(appId, FogUtils.generateTupleId(), edge.getDirection(),
+								(long) (edge.getTupleCpuLength()),
+								inputTuple.getNumberOfPes(),
+								(long) (edge.getTupleNwLength()),
+								inputTuple.getCloudletOutputSize(),
+								inputTuple.getUtilizationModelCpu(),
+								inputTuple.getUtilizationModelRam(),
+								inputTuple.getUtilizationModelBw()
+						);
 						tuple.setActualTupleId(inputTuple.getActualTupleId());
 						tuple.setUserId(inputTuple.getUserId());
 						tuple.setAppId(inputTuple.getAppId());

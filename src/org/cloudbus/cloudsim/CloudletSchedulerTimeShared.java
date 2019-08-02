@@ -102,6 +102,7 @@ public class CloudletSchedulerTimeShared extends CloudletScheduler {
 			if (estimatedFinishTime < nextEvent) {
 				nextEvent = estimatedFinishTime;
 			}
+
 		}
 
 		setPreviousTime(currentTime);

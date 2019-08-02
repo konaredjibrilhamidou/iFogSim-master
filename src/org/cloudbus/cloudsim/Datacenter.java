@@ -122,7 +122,6 @@ public class Datacenter extends SimEntity {
 	@Override
 
 	public void processEvent(SimEvent ev) {
-
 		int srcId = -1;
 		switch (ev.getTag()) {
 		// Resource characteristics inquiry
@@ -433,7 +432,6 @@ public class Datacenter extends SimEntity {
 	 */
 	protected void processVmCreate(SimEvent ev, boolean ack) {
 		Vm vm = (Vm) ev.getData();
-
 		boolean result = getVmAllocationPolicy().allocateHostForVm(vm);
 
 		if (ack) {
@@ -458,9 +456,7 @@ public class Datacenter extends SimEntity {
 			vm.updateVmProcessing(CloudSim.clock(), getVmAllocationPolicy().getHost(vm).getVmScheduler()
 					.getAllocatedMipsForVm(vm));
 		}
-
 	}
-
 	/**
 	 * Process the event for an User/Broker who wants to destroy a VM previously created in this
 	 * PowerDatacenter. This PowerDatacenter may send, upon request, the status back to the
@@ -728,15 +724,18 @@ public class Datacenter extends SimEntity {
 			double estimatedFinishTime = scheduler.cloudletSubmit(cl, fileTransferTime);
 			
 			// if this cloudlet is in the exec queue
+
 			if (estimatedFinishTime > 0.0 && !Double.isInfinite(estimatedFinishTime)) {
 				estimatedFinishTime += fileTransferTime;
 				/*	edited by HARSHIT	*/
 				//if(getName().equals("gateway-3"))
 				//System.out.println(getName()+" : ESTIMATED FINISH TIME ON "+((StreamOperator)vm).getName()+": "+estimatedFinishTime);
-				send(getId(), CloudSim.getMinTimeBetweenEvents()
-						+estimatedFinishTime, CloudSimTags.VM_DATACENTER_EVENT);
+
+		send(getId(), CloudSim.getMinTimeBetweenEvents()
+					+estimatedFinishTime, CloudSimTags.VM_DATACENTER_EVENT);
 				/*	edit done	*/
 			}
+
 
 			if (ack) {
 				int[] data = new int[3];
@@ -1062,7 +1061,7 @@ public class Datacenter extends SimEntity {
 	 * 
 	 * @return the characteristics
 	 */
-	protected DatacenterCharacteristics getCharacteristics() {
+	public DatacenterCharacteristics getCharacteristics() {
 		return characteristics;
 	}
 

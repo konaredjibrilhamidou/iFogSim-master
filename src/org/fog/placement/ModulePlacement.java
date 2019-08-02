@@ -21,6 +21,9 @@ public abstract class ModulePlacement {
 	private Map<String, List<Integer>> moduleToDeviceMap;
 	private Map<Integer, List<AppModule>> deviceToModuleMap;
 	private Map<Integer, Map<String, Integer>> moduleInstanceCountMap;
+
+
+
 	
 	protected abstract void mapModules();
 	
@@ -49,7 +52,7 @@ public abstract class ModulePlacement {
 			
 		if(canBeCreated(device, module)){
 			System.out.println("Creating "+module.getName()+" on device "+device.getName());
-			
+
 			if(!getDeviceToModuleMap().containsKey(device.getId()))
 				getDeviceToModuleMap().put(device.getId(), new ArrayList<AppModule>());
 			getDeviceToModuleMap().get(device.getId()).add(module);

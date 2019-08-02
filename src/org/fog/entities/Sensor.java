@@ -101,6 +101,7 @@ public class Sensor extends SimEntity{
 		tuple.setActualTupleId(actualTupleId);
 		
 		send(gatewayDeviceId, getLatency(), FogEvents.TUPLE_ARRIVAL,tuple);
+
 	}
 	
 	private int updateTimings(String src, String dest){
@@ -127,6 +128,7 @@ public class Sensor extends SimEntity{
 
 	@Override
 	public void processEvent(SimEvent ev) {
+
 		switch(ev.getTag()){
 		case FogEvents.TUPLE_ACK:
 			//transmit(transmitDistribution.getNextValue());
@@ -141,8 +143,8 @@ public class Sensor extends SimEntity{
 
 	@Override
 	public void shutdownEntity() {
-		
 	}
+
 
 	public int getGatewayDeviceId() {
 		return gatewayDeviceId;

@@ -2,10 +2,8 @@ package org.fog.test.perfeval;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.DoubleStream;
 
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Log;
@@ -46,8 +44,8 @@ public class SimFog {
 
     static boolean CLOUD = false;
 
-    static int numOfDepts = 5;//4
-    static int numOfMobilesPerDept = 10;//6
+    static int numOfDepts =4;//           4 4 4 4
+    static int numOfMobilesPerDept =6;//           12  13 14 15
     static double EEG_TRANSMISSION_TIME = 5.1;
     //static double EEG_TRANSMISSION_TIME = 10;
 
@@ -76,16 +74,14 @@ public class SimFog {
                     actuators);
 
             controller.submitApplication(application, 0,
-                    new ModulePlacementHeft(fogDevices, sensors, actuators, application));
-
+                    new ModulePlacementHeft(fogDevices, sensors, actuators, application,moduleMapping));
 
 
             TimeKeeper.getInstance().setSimulationStartTime(Calendar.getInstance().getTimeInMillis());
 
             CloudSim.startSimulation();
 
-            CloudSim.stopSimulation();
-
+           CloudSim.stopSimulation();
 
 
             Log.printLine("VRGame finished!");
@@ -105,7 +101,7 @@ public class SimFog {
      * @param appId
      */
     private static void createFogDevices(int userId, String appId) {
-        FogDevice cloud = createFogDevice("cloud", 44800, 4000, 100, 10000, 0, 0.01, 16*103, 16*83.25); // creates the fog device Cloud at the apex of the hierarchy with level=0
+        FogDevice cloud = createFogDevice("cloud", 4800, 4000, 100, 10000, 0, 0.01, 16*103, 16*83.25); // creates the fog device Cloud at the apex of the hierarchy with level=0
         cloud.setParentId(-1);
         FogDevice proxy = createFogDevice("proxy-server", 2800, 4000, 10000, 10000, 1, 0.0, 107.339, 83.4333); // creates the fog device Proxy Server (level=1)
         proxy.setParentId(cloud.getId()); // setting Cloud as parent of the Proxy Server
@@ -120,21 +116,25 @@ public class SimFog {
     }
 
     private static FogDevice addGw(String id, int userId, String appId, int parentId){
-        FogDevice dept = createFogDevice("d-"+id, 2800, 4000, 10000, 10000, 1, 0.0, 107.339, 83.4333);
+
+       // long mips= randomSeed(2800,3000);
+
+        FogDevice dept = createFogDevice("d-"+id, 3000/*mips*/, 4000, 10000, 10000, 1, 0.0, 107.339, 83.4333);
         fogDevices.add(dept);
         dept.setParentId(parentId);
         dept.setUplinkLatency(4); // latency of connection between gateways and proxy server is 4 ms
         for(int i=0;i<numOfMobilesPerDept;i++){
             String mobileId = id+"-"+i;
             FogDevice mobile = addMobile(mobileId, userId, appId, dept.getId()); // adding mobiles to the physical topology. Smartphones have been modeled as fog devices as well.
-            mobile.setUplinkLatency(2); // latency of connection between the smartphone and proxy server is 4 ms
+            mobile.setUplinkLatency(2); // latency of connection between the smartphone and proxy server is 2 ms
             fogDevices.add(mobile);
         }
         return dept;
     }
 
     private static FogDevice addMobile(String id, int userId, String appId, int parentId){
-        FogDevice mobile = createFogDevice("m-"+id, 1000, 1000, 10000, 270, 3, 0, 87.53, 82.44);
+       // long mips= randomSeed(2500,2800);
+        FogDevice mobile = createFogDevice("m-"+id, 2800 /*mips*/, 1000, 10000, 270, 3, 0, 87.53, 82.44);
         mobile.setParentId(parentId);
         Sensor eegSensor = new Sensor("s-"+id, "EEG", userId, appId, new DeterministicDistribution(EEG_TRANSMISSION_TIME)); // inter-transmission time of EEG sensor follows a deterministic distribution
         sensors.add(eegSensor);
@@ -146,6 +146,7 @@ public class SimFog {
         display.setLatency(1.0);  // latency of connection between Display actuator and the parent Smartphone is 1 ms
         return mobile;
     }
+
 
     /**
      * Creates a vanilla fog device
@@ -213,12 +214,8 @@ public class SimFog {
         return fogdevice;
     }
 
-    /**
-     * Function to create the EEG Tractor Beam game application in the DDF model.
-     * @param appId unique identifier of the application
-     * @param userId identifier of the user of the application
-     * @return
-     */
-
+    public static long randomSeed (int min, int max) {
+        return min + (int) ( Math.random() * (max - min) );
+    }
 
 }

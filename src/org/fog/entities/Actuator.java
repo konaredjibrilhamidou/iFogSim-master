@@ -40,6 +40,7 @@ public class Actuator extends SimEntity{
 	@Override
 	public void startEntity() {
 		sendNow(gatewayDeviceId, FogEvents.ACTUATOR_JOINED, getLatency());
+
 	}
 
 	@Override

@@ -144,6 +144,7 @@ public class CloudletSchedulerSpaceShared extends CloudletScheduler {
 			}
 		}
 		setPreviousTime(currentTime);
+
 		return nextEvent;
 	}
 

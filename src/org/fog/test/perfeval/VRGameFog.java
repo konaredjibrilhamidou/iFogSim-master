@@ -79,7 +79,7 @@ public class VRGameFog {
 
 		controller.submitApplication(application, 0,
 					(CLOUD)?(new ModulePlacementMapping(fogDevices, application, moduleMapping))
-							:(new ModulePlacementEdgewards(fogDevices, sensors, actuators, application, moduleMapping)));
+							:(new ModulePlacementEdgewards(fogDevices, sensors, actuators, application , moduleMapping )));
 
 
 

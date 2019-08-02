@@ -734,13 +734,17 @@ public class Cloudlet {
 			write("Allocates this Cloudlet to " + res.resourceName + " (ID #" + resourceID
 					+ ") with cost = $" + cost + "/sec");
 		} else if (record) {
+
 			final int id = resList.get(index).resourceId;
 			final String name = resList.get(index).resourceName;
 			write("Moves Cloudlet from " + name + " (ID #" + id + ") to " + res.resourceName + " (ID #"
 					+ resourceID + ") with cost = $" + cost + "/sec");
+
+
 		}
 
-		index++;  // initially, index = -1
+		//index++;  // initially, index = -1
+
 	}
 
 	/**
@@ -792,6 +796,7 @@ public class Cloudlet {
 		if (record) {
 			write("Sets the execution start time to " + num.format(clockTime));
 		}
+
 	}
 
 	/**
@@ -852,14 +857,13 @@ public class Cloudlet {
 		}
 
 		if (newStatus == Cloudlet.SUCCESS) {
-			finishTime = CloudSim.clock();
+			finishTime =CloudSim.clock();
 		}
 
 		if (record) {
 			write("Sets Cloudlet status from " + getCloudletStatusString() + " to "
 					+ Cloudlet.getStatusString(newStatus));
 		}
-
 		status = newStatus;
 	}
 
