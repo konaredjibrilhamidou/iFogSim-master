@@ -216,6 +216,7 @@ public class Application {
 								inputTuple.getUtilizationModelRam(),
 								inputTuple.getUtilizationModelBw()
 						);
+
 						tuple.setActualTupleId(inputTuple.getActualTupleId());
 						tuple.setUserId(inputTuple.getUserId());
 						tuple.setAppId(inputTuple.getAppId());

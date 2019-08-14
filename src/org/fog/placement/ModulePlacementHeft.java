@@ -56,8 +56,8 @@ public class ModulePlacementHeft  extends ModulePlacement{
             getCurrentModuleLoadMap().put(dev.getId(), new HashMap<String, Double>());
             getCurrentModuleMap().put(dev.getId(),new ArrayList<>());
             getCurrentModuleInstanceNum().put(dev.getId(), new HashMap<String, Integer>());
+            TimeKeeper.getInstance().getDeviceOccupationTime().put(dev.getId(),new ArrayList<Double>());
         }
-
         mapModules();
         setModuleInstanceCountMap(getCurrentModuleInstanceNum());
     }
@@ -83,6 +83,7 @@ public class ModulePlacementHeft  extends ModulePlacement{
         for(FogDevice fogDevice :getFogDevices())
         {
             deviceMap.put(fogDevice.getName(),fogDevice.getVmAllocationPolicy().getHostList().get(0).getPeList().get(0).getPeProvisioner().getMips());
+
            for(Sensor sensor : getSensors())
                if(sensor.getGatewayDeviceId()==fogDevice.getId())
                    if(!placedModules.contains(sensor.getTupleType()))
@@ -101,7 +102,7 @@ public class ModulePlacementHeft  extends ModulePlacement{
                     FogDevice device =getDeviceById(deviceId);
                     device.getVmAllocationPolicy().getHostList().get(0).getPeList().get(0).getPeProvisioner().setMips(deviceMap.get(device.getName()));
                     createModuleInstanceOnDevice(getApplication().getModuleByName(module),device);
-                    TimeKeeper.getInstance().getExecutionTimeModule().put(module,new ArrayList<Double>());
+
                 }
 
             }
@@ -111,7 +112,6 @@ public class ModulePlacementHeft  extends ModulePlacement{
 
 
     public void getHeftPlacement(List<String> placedModules)
-
     {
         int deviceId=0;
          List<String> orderModule = orderModule();
@@ -147,17 +147,20 @@ public class ModulePlacementHeft  extends ModulePlacement{
                     device.getVmAllocationPolicy().getHostList().get(0).getPeList().get(0).getPeProvisioner().setMips(availableMips);
                     System.out.println("Placement of operator "+moduleName+ " on device "+device.getName()+ " successful.");
                     getCurrentModuleInstanceNum().get(deviceId).put(moduleName, getCurrentModuleInstanceNum().get(deviceId).get(moduleName)+1);
-
+                    TimeKeeper.getInstance().getDeviceOccupationTime().get(deviceId).add((double) System.currentTimeMillis());
                 }
 
                 currentModuleMap.get(deviceId).add(moduleName);
             }
-
+/*
         for(FogDevice fogDevice :getFogDevices())
         {
             if(currentModuleMap.get(fogDevice.getId()).isEmpty())
-                currentModuleMap.get(fogDevice.getId()).add("client");
+                currentModuleMap.get(fogDevice.getId()).add("connector");
         }
+
+*/
+
     }
     /**
      *

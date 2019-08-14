@@ -32,13 +32,11 @@ public class Controller extends SimEntity{
 	private Map<String, ModulePlacement> appModulePlacementPolicy;
 
 
-	/*
+
 	public double cloudEnergy=0.0;
 	public double gatewayEnergy=0.0;
 	public double mobileEnergy=0.0;
 
-
-	 */
 
 	
 	public Controller(String name, List<FogDevice> fogDevices, List<Sensor> sensors, List<Actuator> actuators) {
@@ -118,7 +116,7 @@ public class Controller extends SimEntity{
 	}
 	
 	private void printNetworkUsageDetails() {
-		System.out.println("Total network usage = "+NetworkUsageMonitor.getNetworkUsage()/Config.MAX_SIMULATION_TIME);		
+		System.out.println("Total network usage = "+ NetworkUsageMonitor.getNetworkUsage()/Config.MAX_SIMULATION_TIME);
 	}
 
 	private FogDevice getCloud(){
@@ -127,14 +125,17 @@ public class Controller extends SimEntity{
 				return dev;
 		return null;
 	}
-	
+
+
 	private void printCostDetails(){
 		System.out.println("Cost of execution in cloud = "+getCloud().getTotalCost());
 	}
-	
+
+
+
 	private void printPowerDetails() {
 		for(FogDevice fogDevice : getFogDevices()){
-/*
+
 				if(fogDevice.getName().startsWith("m"))
 					mobileEnergy =mobileEnergy+ fogDevice.getEnergyConsumption();
 
@@ -144,16 +145,18 @@ public class Controller extends SimEntity{
 				if(fogDevice.getName().startsWith("c") || fogDevice.getName().equals("proxy-server"))
 					cloudEnergy = cloudEnergy+fogDevice.getEnergyConsumption();
 
-*/
+
 
 			System.out.println(fogDevice.getName() + " : Energy Consumed = "+fogDevice.getEnergyConsumption());
 		}
-/*
+		System.out.println("=========================================");
 		System.out.println("Cloud-Proxy Energy Consumed = "+ ((int)cloudEnergy));
+		System.out.println("=========================================");
 		System.out.println("Gateways Energy Consumed = "+((int)gatewayEnergy ));
+		System.out.println("=========================================");
 		System.out.println("Mobiles Energy Consumed = "+((int)mobileEnergy));
+		System.out.println("=========================================");
 
- */
 	}
 
 
@@ -189,6 +192,8 @@ public class Controller extends SimEntity{
 			System.out.println(getStringForLoopId(loopId) + " ---> "+(average/count));*/
 			System.out.println(getStringForLoopId(loopId) + " ---> "+TimeKeeper.getInstance().getLoopIdToCurrentAverage().get(loopId));
 		}
+		double sumTimeTotal =0;
+		double sumTimeOccuped=0;
 		System.out.println("=========================================");
 		System.out.println("TUPLE CPU EXECUTION DELAY");
 		System.out.println("=========================================");
@@ -200,10 +205,29 @@ public class Controller extends SimEntity{
 		System.out.println("=========================================");
 
 		for(String moduleName : TimeKeeper.getInstance().getExecutionTimeModule().keySet())
-			System.out.println(moduleName + " ---> "+ TimeKeeper.getInstance().getExecutionTimeModule().get(moduleName));
-		System.out.println("=========================================");
+		{	int lastindex=TimeKeeper.getInstance().getExecutionTimeModule().get(moduleName).size()-1;
+			System.out.println("PLACEMENT EXECUTION TIME   ---> "+(int)(TimeKeeper.getInstance().getExecutionTimeModule().get(moduleName).get(lastindex) - TimeKeeper.getInstance().getExecutionTimeModule().get(moduleName).get(0)));
+			sumTimeOccuped=TimeKeeper.getInstance().getExecutionTimeModule().get(moduleName).get(lastindex) - TimeKeeper.getInstance().getExecutionTimeModule().get(moduleName).get(0);
 
+		}
+
+		for(int deviceId : TimeKeeper.getInstance().getDeviceOccupationTime().keySet())
+		{
+
+
+			if(TimeKeeper.getInstance().getDeviceOccupationTime().get(deviceId).isEmpty())
+				continue;
+
+			int lastindex=TimeKeeper.getInstance().getDeviceOccupationTime().get(deviceId).size()-1;
+			FogDevice device =getFogDeviceById(deviceId);
+			sumTimeTotal += TimeKeeper.getInstance().getDeviceOccupationTime().get(deviceId).get(lastindex);
+
+		}
+		System.out.println("=========================================");
+		System.out.println("DEVICE OCCUPATION TIME ------>"+(sumTimeOccuped/sumTimeTotal) );
+		System.out.println("=========================================");
 	}
+
 
 	protected void manageResources(){
 		send(getId(), Config.RESOURCE_MANAGE_INTERVAL, FogEvents.CONTROLLER_RESOURCE_MANAGE);
@@ -267,7 +291,6 @@ public class Controller extends SimEntity{
 				sendNow(deviceId, FogEvents.LAUNCH_MODULE, module);
 			}
 		}
-
 
 
 	}

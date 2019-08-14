@@ -317,9 +317,11 @@ public class CloudSim {
 	protected static DeferredQueue deferred;
 
 	/** The simulation clock. */
+
 	private static double clock;
 
 	/** Flag for checking if the simulation is running. */
+
 	private static boolean running;
 
 	/** The entities by name. */
@@ -753,8 +755,8 @@ public class CloudSim {
 	 * 
 	 * @param e the e
 	 */
-	private static void processEvent(SimEvent e) {
 
+	private static void processEvent(SimEvent e) {
 
 		int dest, src;
 		SimEntity dest_ent;
@@ -763,10 +765,8 @@ public class CloudSim {
 			throw new IllegalArgumentException("Past event detected.");
 		}
 		clock = e.eventTime();
-
 		// Ok now process it
 		switch (e.getType()) {
-
 			case SimEvent.ENULL:
 				throw new IllegalArgumentException("Event has a null type.");
 
@@ -774,7 +774,6 @@ public class CloudSim {
 				SimEntity newe = (SimEntity) e.getData();
 				addEntityDynamically(newe);
 				break;
-
 
 			case SimEvent.SEND:
 				// Check for matching wait

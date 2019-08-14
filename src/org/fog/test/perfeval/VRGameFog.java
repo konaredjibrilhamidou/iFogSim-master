@@ -82,6 +82,7 @@ public class VRGameFog {
 							:(new ModulePlacementEdgewards(fogDevices, sensors, actuators, application , moduleMapping )));
 
 
+			TimeKeeper.getInstance().getExecutionTimeModule().put(appId,new ArrayList<Double>());
 
 			TimeKeeper.getInstance().setSimulationStartTime(Calendar.getInstance().getTimeInMillis());
 

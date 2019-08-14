@@ -23,9 +23,10 @@ public class AppLoop {
 	public String getStartModule(){
 		return modules.get(0);
 	}
+
 	
 	public String getEndModule(){
-		return modules.get(modules.size()-1);
+		return modules.get(modules.size()-2);
 	}
 	
 	public boolean isStartModule(String module){

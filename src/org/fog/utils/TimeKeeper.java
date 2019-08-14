@@ -31,6 +31,7 @@ public class TimeKeeper {
 	 * @return
 	 */
 	private Map<String, List<Double>> executionTimeModule;
+	private Map<Integer	,List<Double>> deviceOccupationTime;
 	
 	public static TimeKeeper getInstance(){
 		if(instance == null)
@@ -44,6 +45,7 @@ public class TimeKeeper {
 	
 	public void tupleStartedExecution(Tuple tuple){
 		tupleIdToCpuStartTime.put(tuple.getCloudletId(), CloudSim.clock());
+
 
 	}
 	
@@ -59,6 +61,7 @@ public class TimeKeeper {
 			int currentCount = tupleTypeToExecutedTupleCount.get(tuple.getTupleType());
 			tupleTypeToAverageCpuTime.put(tuple.getTupleType(), (currentAverage*currentCount+executionTime)/(currentCount+1));
 		}
+
 	}
 
 
@@ -77,6 +80,7 @@ public class TimeKeeper {
 		setLoopIdToCurrentAverage(new HashMap<Integer, Double>());
 		setLoopIdToCurrentNum(new HashMap<Integer, Integer>());
 		setExecutionTimeModule(new HashMap<String, List<Double>>());
+		setDeviceOccupationTime(new HashMap<Integer, List<Double>>());
 	}
 	
 	public int getCount() {
@@ -168,5 +172,12 @@ public class TimeKeeper {
 	public void setExecutionTimeModule(Map<String, List<Double>> executionTimeModule) {
 		this.executionTimeModule = executionTimeModule;
 	}
-	
+
+	public Map<Integer, List<Double>> getDeviceOccupationTime() {
+		return deviceOccupationTime;
+	}
+
+	public void setDeviceOccupationTime(Map<Integer	, List<Double>> deviceOccupationTime) {
+		this.deviceOccupationTime = deviceOccupationTime;
+	}
 }

@@ -79,6 +79,10 @@ public class Cloudlet {
 	/** The history. */
 	private StringBuffer history;
 
+	public List<Resource> getResList() {
+		return resList;
+	}
+
 	/** The res list. */
 	private final List<Resource> resList;
 

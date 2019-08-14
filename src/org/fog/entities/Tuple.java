@@ -11,9 +11,7 @@ public class Tuple extends Cloudlet{
 	public static final int UP = 1;
 	public static final int DOWN = 2;
 	public static final int ACTUATOR = 3;
-	
 	private String appId;
-	
 	private String tupleType;
 	private String destModuleName;
 	private String srcModuleName;
@@ -29,7 +27,7 @@ public class Tuple extends Cloudlet{
 	 * Map from moduleName to vmId of a module instance
 	 */
 	private Map<String, Integer> moduleCopyMap;
-	
+
 	public Tuple(String appId, int cloudletId, int direction, long cloudletLength, int pesNumber,
 			long cloudletFileSize, long cloudletOutputSize,
 			UtilizationModel utilizationModelCpu,
@@ -43,6 +41,8 @@ public class Tuple extends Cloudlet{
 		setSourceDeviceId(-1);
 		setModuleCopyMap(new HashMap<String, Integer>());
 	}
+
+
 
 	public int getActualTupleId() {
 		return actualTupleId;

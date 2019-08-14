@@ -45,7 +45,7 @@ public class SimFog {
     static boolean CLOUD = false;
 
     static int numOfDepts =4;//           4 4 4 4
-    static int numOfMobilesPerDept =6;//           12  13 14 15
+    static int numOfMobilesPerDept =15;//           12  13 14 15
     static double EEG_TRANSMISSION_TIME = 5.1;
     //static double EEG_TRANSMISSION_TIME = 10;
 
@@ -64,7 +64,7 @@ public class SimFog {
             String appId = "vr_game"; // identifier of the application
 
             FogBroker broker = new FogBroker("broker");
-            Application application = ApplicationGraph.createApplication1(appId, broker.getId());
+            Application application = ApplicationGraph.createApplication0(appId, broker.getId());
             application.setUserId(broker.getId());
             createFogDevices(broker.getId(), appId);
 
@@ -74,8 +74,13 @@ public class SimFog {
                     actuators);
 
             controller.submitApplication(application, 0,
-                    new ModulePlacementHeft(fogDevices, sensors, actuators, application,moduleMapping));
+                    new ModulePlacementCpop(fogDevices, sensors, actuators, application ,moduleMapping));
 
+            /**
+             * djibril
+             */
+
+            TimeKeeper.getInstance().getExecutionTimeModule().put(appId,new ArrayList<Double>());
 
             TimeKeeper.getInstance().setSimulationStartTime(Calendar.getInstance().getTimeInMillis());
 
@@ -103,7 +108,7 @@ public class SimFog {
     private static void createFogDevices(int userId, String appId) {
         FogDevice cloud = createFogDevice("cloud", 4800, 4000, 100, 10000, 0, 0.01, 16*103, 16*83.25); // creates the fog device Cloud at the apex of the hierarchy with level=0
         cloud.setParentId(-1);
-        FogDevice proxy = createFogDevice("proxy-server", 2800, 4000, 10000, 10000, 1, 0.0, 107.339, 83.4333); // creates the fog device Proxy Server (level=1)
+        FogDevice proxy = createFogDevice("proxy-server", 4000, 4000, 10000, 10000, 1, 0.0, 107.339, 83.4333); // creates the fog device Proxy Server (level=1)
         proxy.setParentId(cloud.getId()); // setting Cloud as parent of the Proxy Server
         proxy.setUplinkLatency(100); // latency of connection from Proxy Server to the Cloud is 100 ms
         fogDevices.add(cloud);

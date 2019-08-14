@@ -34,7 +34,6 @@ import java.util.List;
  */
 public abstract class SimEntity implements Cloneable {
 
-
 	/** The name. */
 	private String name;
 
@@ -85,7 +84,7 @@ public abstract class SimEntity implements Cloneable {
 	/**
 	 * Send an event to another entity by id number, with data. Note that the tag <code>9999</code>
 	 * is reserved.
-	 * 
+	 *
 	 * @param dest The unique id number of the destination entity
 	 * @param delay How long from the current simulation time the event should be sent
 	 * @param tag An user-defined number representing the type of event.

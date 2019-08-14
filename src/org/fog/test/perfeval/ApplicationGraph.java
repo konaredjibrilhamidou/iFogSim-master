@@ -12,10 +12,44 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ApplicationGraph {
+
     static double EEG_TRANSMISSION_TIME = 5.1;
 
+    public static Application createApplication0(String appId, int userId){
 
-       public static Application createApplication1(String appId, int userId){
+        Application application = Application.createApplication(appId, userId); // creates an empty application model (empty directed graph)
+
+        /*
+         * Adding modules (vertices) to the application model (directed graph)
+         */
+        application.addAppModule("module1", 10); // adding module Client to the application model
+        application.addAppModule("module2", 10); // adding module Concentration Calculator to the application model
+        application.addAppModule("module3", 10); // adding module Connector to the application model application.addAppModule("module1", 10); // adding module Client to the application model
+        application.addAppModule("module4", 10); // adding module Concentration Calculator to the application model
+        application.addAppModule("module5", 10); // adding module Connector to the application model
+        application.addAppModule("module6", 10); // adding module Connector to the application model
+
+
+        if(EEG_TRANSMISSION_TIME==10)
+            application.addAppEdge("EEG", "client", 2000, 500, "EEG", Tuple.UP, AppEdge.SENSOR); // adding edge from EEG (sensor) to Client module carrying tuples of type EEG
+        else
+
+            application.addAppEdge("module1", "module2", 3500, 250, "EEG", Tuple.UP, AppEdge.MODULE);
+            application.addAppEdge("module1", "module3", 2000, 250, "EEG", Tuple.UP, AppEdge.MODULE);
+            application.addAppEdge("module3", "module5", 2500, 250, "EEG", Tuple.UP, AppEdge.MODULE);
+            application.addAppEdge("module2", "module5", 1500, 250, "EEG", Tuple.UP, AppEdge.MODULE);
+            application.addAppEdge("module2", "module4", 2500, 250, "EEG", Tuple.UP, AppEdge.MODULE);
+            application.addAppEdge("module4", "module6", 4500, 250, "EEG", Tuple.UP, AppEdge.MODULE);
+            application.addAppEdge("module5", "module6", 3000, 250, "EEG", Tuple.UP, AppEdge.MODULE);
+
+
+
+        return application;
+
+    }
+
+
+    public static Application createApplication1(String appId, int userId){
 
 
 
@@ -43,7 +77,7 @@ public class ApplicationGraph {
 		application.addAppEdge("client", "DISPLAY", 1000, 500, "SELF_STATE_UPDATE", Tuple.DOWN, AppEdge.ACTUATOR);  // adding edge from Client module to Display (actuator) carrying tuples of type SELF_STATE_UPDATE
 		application.addAppEdge("client", "DISPLAY", 1000, 500, "GLOBAL_STATE_UPDATE", Tuple.DOWN, AppEdge.ACTUATOR);  // adapplication.addAppEdge("EEG", "client", 3000, 500, "EEG", Tuple.UP, AppEdge.SENSOR);
 		*/
-               application.addAppEdge("EEG", "client", 3500, 250, "EEG", Tuple.UP, AppEdge.SENSOR);
+			application.addAppEdge("EEG", "client", 3500, 250, "EEG", Tuple.UP, AppEdge.SENSOR);
            application.addAppEdge("client", "concentration_calculator", 3000, 80, "_SENSOR", Tuple.UP, AppEdge.MODULE); // adding edge from Client to Concentration Calculator module carrying tuples of type _SENSOR
            application.addAppEdge("concentration_calculator", "connector", 100, 500, 150, "PLAYER_GAME_STATE", Tuple.UP, AppEdge.MODULE); // adding periodic edge (period=1000ms) from Concentration Calculator to Connector module carrying tuples of type PLAYER_GAME_STATE
            application.addAppEdge("concentration_calculator", "client", 14, 500, "CONCENTRATION", Tuple.DOWN, AppEdge.MODULE);  // adding edge from Concentration Calculator to Client module carrying tuples of type CONCENTRATION
@@ -63,7 +97,7 @@ public class ApplicationGraph {
             * Defining application loops to monitor the latency of.
             * Here, we add only one loop for monitoring : EEG(sensor) -> Client -> Concentration Calculator -> Client -> DISPLAY (actuator)
             */
-           final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("EEG");add("client");add("concentration_calculator");add("client");add("DISPLAY");}});
+           final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("EEG");add("client");add("concentration_calculator");add("connector");add("client");add("DISPLAY");}});
            List<AppLoop> loops = new ArrayList<AppLoop>(){{add(loop1);}};
            application.setLoops(loops);
 
@@ -139,11 +173,20 @@ public class ApplicationGraph {
         application.addAppEdge("connector","agent",2000,1100,200,"AGENT_TYPE",Tuple.UP,AppEdge.MODULE);
         application.addAppEdge("connector","monitor",1000,2000,250,"MONITOR_TYPE",Tuple.UP,AppEdge.MODULE);
 
+
+        application.addAppEdge("EEG", "client", 3500, 250, "EEG", Tuple.UP, AppEdge.SENSOR);
+        application.addAppEdge("client", "concentration_calculator", 3000, 80, "_SENSOR", Tuple.UP, AppEdge.MODULE); // adding edge from Client to Concentration Calculator module carrying tuples of type _SENSOR
+        application.addAppEdge("concentration_calculator", "connector", 100, 500, 150, "PLAYER_GAME_STATE", Tuple.UP, AppEdge.MODULE); // adding periodic edge (period=1000ms) from Concentration Calculator to Connector module carrying tuples of type PLAYER_GAME_STATE
+        application.addAppEdge("concentration_calculator", "client", 14, 500, "CONCENTRATION", Tuple.DOWN, AppEdge.MODULE);  // adding edge from Concentration Calculator to Client module carrying tuples of type CONCENTRATION
+        application.addAppEdge("connector", "client", 100, 28, 1000, "GLOBAL_GAME_STATE", Tuple.DOWN, AppEdge.MODULE); // adding periodic edge (period=1000ms) from Connector to Client module carrying tuples of type GLOBAL_GAME_STATE
+        application.addAppEdge("client", "DISPLAY", 950, 500, "SELF_STATE_UPDATE", Tuple.DOWN, AppEdge.ACTUATOR);  // adding edge from Client module to Display (actuator) carrying tuples of type SELF_STATE_UPDATE
+        application.addAppEdge("client", "DISPLAY", 100, 600, "GLOBAL_STATE_UPDATE", Tuple.DOWN, AppEdge.ACTUATOR);  // adding edge from Client module to Display (actuator) carrying tuples of type GLOBAL_STATE_UPDATE
+
         /*
          * Defining application loops to monitor the latency of.
          * Here, we add only one loop for monitoring : EEG(sensor) -> Client -> Concentration Calculator -> Client -> DISPLAY (actuator)
          */
-        final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("EEG");add("client");add("concentration_calculator");add("client");add("DISPLAY");add("agent");add("monitor");}});
+        final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("EEG");add("client");add("concentration_calculator");add("connector");add("agent");add("monitor");add("client");add("DISPLAY");}});
         List<AppLoop> loops = new ArrayList<AppLoop>(){{add(loop1);}};
         application.setLoops(loops);
         return application;
@@ -229,8 +272,8 @@ public class ApplicationGraph {
          * Defining application loops to monitor the latency of.
          * Here, we add only one loop for monitoring : EEG(sensor) -> Client -> Concentration Calculator -> Client -> DISPLAY (actuator)
          */
-        final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("EEG");add("client");add("concentration_calculator");
-        add("client");add("DISPLAY");add("agent");add("monitor");add("motion_detector");add("central");add("object_tracker");}});
+        final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("EEG");add("client");add("concentration_calculator");add("connector");
+        add("agent");add("monitor");add("motion_detector");add("central");add("object_tracker");add("client");add("DISPLAY");}});
         List<AppLoop> loops = new ArrayList<AppLoop>(){{add(loop1);}};
         application.setLoops(loops);
         return application;
@@ -406,10 +449,9 @@ public class ApplicationGraph {
          * Defining application loops to monitor the latency of.
          * Here, we add only one loop for monitoring : EEG(sensor) -> Client -> Concentration Calculator -> Client -> DISPLAY (actuator)
          */
-        final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("EEG");add("client");add("concentration_calculator");
-        add("client");add("DISPLAY");add("agent");add("monitor");add("motion_detector");add("central");add("object_tracker");
-        add("camera");add("ptz_control");add("driver_module");add("packet_module");add("mouse_control");add("backbone");
-        add("network_control");add("image_processing");add("compressing");}});
+        final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("EEG");add("client");add("concentration_calculator");add("connector");
+        add("agent");add("monitor");add("motion_detector");add("central");add("object_tracker"); add("camera");add("ptz_control");add("driver_module");
+        add("packet_module");add("mouse_control");add("backbone"); add("network_control");add("image_processing");add("compressing");add("client");add("DISPLAY");}});
         List<AppLoop> loops = new ArrayList<AppLoop>(){{add(loop1);}};
         application.setLoops(loops);
         return application;
@@ -480,11 +522,10 @@ public class ApplicationGraph {
          * Defining application loops to monitor the latency of.
          * Here, we add only one loop for monitoring : EEG(sensor) -> Client -> Concentration Calculator -> Client -> DISPLAY (actuator)
          */
-        final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("EEG");add("client");add("concentration_calculator");
-        add("client");add("DISPLAY");add("agent");add("monitor");add("motion_detector");add("central");add("object_tracker");
-        add("camera");add("ptz_control");add("driver_module");add("packet_module");add("mouse_control");add("backbone");
-        add("network_control");add("image_processing");add("compressing");add(("data_storage"));add("tracking_module");
-        add("analytics_module");}});
+        final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("EEG");add("client");add("concentration_calculator");add("connector");
+        add("agent");add("monitor");add("motion_detector");add("central");add("object_tracker");add("camera");add("ptz_control");add("driver_module");
+        add("packet_module");add("mouse_control");add("backbone"); add("network_control");add("image_processing");add("compressing");add(("data_storage"));add("tracking_module");
+        add("analytics_module");add("client");add("DISPLAY");}});
         List<AppLoop> loops = new ArrayList<AppLoop>(){{add(loop1);}};
         application.setLoops(loops);
         return application;
@@ -653,12 +694,12 @@ public class ApplicationGraph {
          * Defining application loops to monitor the latency of.
          * Here, we add only one loop for monitoring : EEG(sensor) -> Client -> Concentration Calculator -> Client -> DISPLAY (actuator)
          */
-        final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("EEG");add("client");add("concentration_calculator");
-        add("client");add("DISPLAY");add("agent");add("monitor");add("motion_detector");add("central");add("object_tracker");
+        final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("EEG");add("client");add("concentration_calculator");add("connector");
+        add("agent");add("monitor");add("motion_detector");add("central");add("object_tracker");
         add("camera");add("ptz_control");add("driver_module");add("packet_module");add("mouse_control");add("backbone");
         add("network_control");add("image_processing");add("compressing");add(("data_storage"));add("tracking_module");
         add("analytics_module");add("application-integration");add("monitoring");add("cost_management");
-            add("transfert_module");}});
+            add("transfert_module");add("client");add("DISPLAY");}});
         List<AppLoop> loops = new ArrayList<AppLoop>(){{add(loop1);}};
         application.setLoops(loops);
         return application;
@@ -750,12 +791,13 @@ public class ApplicationGraph {
          * Defining application loops to monitor the latency of.
          * Here, we add only one loop for monitoring : EEG(sensor) -> Client -> Concentration Calculator -> Client -> DISPLAY (actuator)
          */
-        final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("EEG");add("client");add("concentration_calculator");
-        add("client");add("DISPLAY");add("agent");add("monitor");add("motion_detector");add("central");add("object_tracker");
+        final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("EEG");add("client");add("concentration_calculator");add("connector");
+       add("agent");add("monitor");add("motion_detector");add("central");add("object_tracker");
         add("camera");add("ptz_control");add("driver_module");add("packet_module");add("mouse_control");add("backbone");
         add("network_control");add("image_processing");add("compressing");add(("data_storage"));add("tracking_module");
         add("analytics_module");add("application-integration");add("monitoring");add("cost_management");
-            add("transfert_module");}});
+        add("transfert_module");add("streams_module");add("deployment_module");add("convertion");add("scalability");add("isolation_ressource");
+       add("dns_service"); add("client");add("DISPLAY");}});
         List<AppLoop> loops = new ArrayList<AppLoop>(){{add(loop1);}};
         application.setLoops(loops);
         return application;
@@ -857,12 +899,13 @@ public class ApplicationGraph {
          * Defining application loops to monitor the latency of.
          * Here, we add only one loop for monitoring : EEG(sensor) -> Client -> Concentration Calculator -> Client -> DISPLAY (actuator)
          */
-        final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("EEG");add("client");add("concentration_calculator");
-        add("client");add("DISPLAY");add("agent");add("monitor");add("motion_detector");add("central");add("object_tracker");
-        add("camera");add("ptz_control");add("driver_module");add("packet_module");add("mouse_control");add("backbone");
-        add("network_control");add("image_processing");add("compressing");add(("data_storage"));add("tracking_module");
-        add("analytics_module");add("application-integration");add("monitoring");add("cost_management");
-            add("transfert_module");}});
+        final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("EEG");add("client");add("concentration_calculator");add("connector");
+            add("agent");add("monitor");add("motion_detector");add("central");add("object_tracker");
+            add("camera");add("ptz_control");add("driver_module");add("packet_module");add("mouse_control");add("backbone");
+            add("network_control");add("image_processing");add("compressing");add(("data_storage"));add("tracking_module");
+            add("analytics_module");add("application-integration");add("monitoring");add("cost_management");
+            add("transfert_module");add("streams_module");add("deployment_module");add("convertion");add("scalability");add("isolation_ressource");
+            add("dns_service"); add("dhcp_service");add("messaging");add("web_service"); add("client");add("DISPLAY");}});
         List<AppLoop> loops = new ArrayList<AppLoop>(){{add(loop1);}};
         application.setLoops(loops);
         return application;

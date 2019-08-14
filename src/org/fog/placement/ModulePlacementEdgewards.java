@@ -82,7 +82,8 @@ public class ModulePlacementEdgewards extends ModulePlacement{
 		for(int deviceId : getCurrentModuleMap().keySet()){
 			for(String module : getCurrentModuleMap().get(deviceId)){
 				createModuleInstanceOnDevice(getApplication().getModuleByName(module), getFogDeviceById(deviceId));
-				TimeKeeper.getInstance().getExecutionTimeModule().put(module,0.0);
+				//TimeKeeper.getInstance().getDeviceOccupationTime().put(deviceId,new ArrayList<Double>());
+				//TimeKeeper.getInstance().getDeviceOccupationTime().get(deviceId).add((double)System.currentTimeMillis());
 
 			}
 		}

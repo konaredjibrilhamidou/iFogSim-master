@@ -1,11 +1,6 @@
 package org.fog.entities;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 
 import org.apache.commons.math3.util.Pair;
 import org.cloudbus.cloudsim.Cloudlet;
@@ -39,6 +34,7 @@ import org.fog.utils.NetworkUsageMonitor;
 import org.fog.utils.TimeKeeper;
 
 public class FogDevice extends PowerDatacenter {
+
 
 	protected Queue<Tuple> northTupleQueue;
 	protected Queue<Pair<Tuple, Integer>> southTupleQueue;
@@ -124,6 +120,7 @@ public class FogDevice extends PowerDatacenter {
 			throw new Exception(super.getName()
 					+ " : Error - this entity has no PEs. Therefore, can't process any Cloudlets.");
 		}
+
 		// stores id of this class
 		getCharacteristics().setId(super.getId());
 		
@@ -133,7 +130,6 @@ public class FogDevice extends PowerDatacenter {
 		southTupleQueue = new LinkedList<Pair<Tuple, Integer>>();
 		setNorthLinkBusy(false);
 		setSouthLinkBusy(false);
-		
 		
 		setChildrenIds(new ArrayList<Integer>());
 		setChildToOperatorsMap(new HashMap<Integer, List<String>>());
@@ -244,9 +240,9 @@ public class FogDevice extends PowerDatacenter {
 		
 	}
 
-
 	@Override
 	protected void processOtherEvent(SimEvent ev) {
+
 		switch(ev.getTag()){
 		case FogEvents.TUPLE_ARRIVAL:
 			processTupleArrival(ev);
@@ -467,8 +463,11 @@ public class FogDevice extends PowerDatacenter {
 						Tuple tuple = (Tuple)cl;
 
 						TimeKeeper.getInstance().tupleEndedExecution(tuple);
-						lockTime = TimeKeeper.getInstance().getExecutionTimeModule().get(tuple.getDestModuleName()).get(0)+System.currentTimeMillis();
-						TimeKeeper.getInstance().getExecutionTimeModule().get(tuple.getDestModuleName()).add(lockTime);
+
+						lockTime = TimeKeeper.getInstance().getExecutionTimeModule().get("vr_game").get(0)+Calendar.getInstance().getTimeInMillis();
+
+						TimeKeeper.getInstance().getExecutionTimeModule().get("vr_game").add(lockTime);
+
 						Application application = getApplicationMap().get(tuple.getAppId());
 						Logger.debug(getName(), "Completed execution of tuple "+tuple.getCloudletId()+"on "+tuple.getDestModuleName());
 						List<Tuple> resultantTuples = application.getResultantTuples(tuple.getDestModuleName(), tuple, getId(), vm.getId());
@@ -539,7 +538,7 @@ public class FogDevice extends PowerDatacenter {
 				{add(0.0);}});
 			}
 		}
-		
+
 		updateEnergyConsumption();
 	}
 
@@ -558,6 +557,19 @@ public class FogDevice extends PowerDatacenter {
 		double currentEnergyConsumption = getEnergyConsumption();
 		double newEnergyConsumption = currentEnergyConsumption + (timeNow-lastUtilizationUpdateTime)*getHost().getPowerModel().getPower(lastUtilization);
 		setEnergyConsumption(newEnergyConsumption);
+
+
+		if(getName().startsWith("d") && getEnergyConsumption() > 834333 )
+			TimeKeeper.getInstance().getDeviceOccupationTime().get(getId()).add((double)System.currentTimeMillis());
+		if(getName().startsWith("m") && getEnergyConsumption() > 824400 )
+			TimeKeeper.getInstance().getDeviceOccupationTime().get(getId()).add((double)System.currentTimeMillis());
+		if(getName().equals("cloud") && getEnergyConsumption() > 1332000 )
+			TimeKeeper.getInstance().getDeviceOccupationTime().get(getId()).add((double)System.currentTimeMillis());
+		if(getName().equals("proxy-server") && getEnergyConsumption() > 834333)
+			TimeKeeper.getInstance().getDeviceOccupationTime().get(getId()).add((double)System.currentTimeMillis());
+
+
+
 /*
 		if(getName().equals("d-0")){
 			System.out.println("------------------------");
@@ -628,7 +640,6 @@ public class FogDevice extends PowerDatacenter {
 
 	}
 
-
 	protected void processTupleArrival(SimEvent ev){
 
 		Tuple tuple = (Tuple)ev.getData();
@@ -636,12 +647,11 @@ public class FogDevice extends PowerDatacenter {
 		if(getName().equals("cloud")){
 			updateCloudTraffic();
 		}
-
-
 		
 		/*if(getName().equals("d-0") && tuple.getTupleType().equals("_SENSOR")){
 			System.out.println(++numClients);
 		}*/
+
 		Logger.debug(getName(), "Received tuple "+tuple.getCloudletId()+"with tupleType = "+tuple.getTupleType()+"\t| Source : "+
 		CloudSim.getEntityName(ev.getSource())+"|Dest : "+CloudSim.getEntityName(ev.getDestination()));
 		send(ev.getSource(), CloudSim.getMinTimeBetweenEvents(), FogEvents.TUPLE_ACK);
@@ -666,29 +676,35 @@ public class FogDevice extends PowerDatacenter {
 		}
 
 		if(getName().equals("cloud") && tuple.getDestModuleName()==null){
+
 			sendNow(getControllerId(), FogEvents.TUPLE_FINISHED, null);
 		}
+
 
 		if(appToModulesMap.containsKey(tuple.getAppId())){
 			if(appToModulesMap.get(tuple.getAppId()).contains(tuple.getDestModuleName())){
 
 				int vmId = -1;
+
 				for(Vm vm : getHost().getVmList()){
 					if(((AppModule)vm).getName().equals(tuple.getDestModuleName()))
 						vmId = vm.getId();
 				}
 
-				if(vmId < 0
-						|| (tuple.getModuleCopyMap().containsKey(tuple.getDestModuleName()) &&
+				if(vmId < 0	|| (tuple.getModuleCopyMap().containsKey(tuple.getDestModuleName()) &&
 								tuple.getModuleCopyMap().get(tuple.getDestModuleName())!=vmId )){
 					return;
 				}
+
 
 				tuple.setVmId(vmId);
 
 				//Logger.error(getName(), "Executing tuple for operator " + moduleName);
 
 				updateTimingsOnReceipt(tuple);
+
+				if(TimeKeeper.getInstance().getExecutionTimeModule().get("vr_game").isEmpty())
+						TimeKeeper.getInstance().getExecutionTimeModule().get("vr_game").add((double) Calendar.getInstance().getTimeInMillis());
 
 				executeTuple(ev, tuple.getDestModuleName());
 
@@ -735,6 +751,8 @@ public class FogDevice extends PowerDatacenter {
 					TimeKeeper.getInstance().getLoopIdToCurrentAverage().put(loop.getLoopId(), 0.0);
 					TimeKeeper.getInstance().getLoopIdToCurrentNum().put(loop.getLoopId(), 0);
 				}
+
+
 				double currentAverage = TimeKeeper.getInstance().getLoopIdToCurrentAverage().get(loop.getLoopId());
 				int currentCount = TimeKeeper.getInstance().getLoopIdToCurrentNum().get(loop.getLoopId());
 				double delay = CloudSim.clock()- TimeKeeper.getInstance().getEmitTimes().get(tuple.getActualTupleId());
@@ -757,41 +775,34 @@ public class FogDevice extends PowerDatacenter {
 
 
 	protected void executeTuple(SimEvent ev, String moduleName){
+
 		Logger.debug(getName(), "Executing tuple on module "+moduleName);
 		Tuple tuple = (Tuple)ev.getData();
-		
 		AppModule module = getModuleByName(moduleName);
-		
 		if(tuple.getDirection() == Tuple.UP){
 			String srcModule = tuple.getSrcModuleName();
 			if(!module.getDownInstanceIdsMaps().containsKey(srcModule))
 				module.getDownInstanceIdsMaps().put(srcModule, new ArrayList<Integer>());
 			if(!module.getDownInstanceIdsMaps().get(srcModule).contains(tuple.getSourceModuleId()))
 				module.getDownInstanceIdsMaps().get(srcModule).add(tuple.getSourceModuleId());
-			
 			int instances = -1;
 			for(String _moduleName : module.getDownInstanceIdsMaps().keySet()){
 				instances = Math.max(module.getDownInstanceIdsMaps().get(_moduleName).size(), instances);
 			}
+
 			module.setNumInstances(instances);
 		}
+
 		TimeKeeper.getInstance().tupleStartedExecution(tuple);
-		/**
-		 * djibril
-		 */
-		if(TimeKeeper.getInstance().getExecutionTimeModule().get(moduleName).isEmpty())
-			TimeKeeper.getInstance().getExecutionTimeModule().get(moduleName).add((double)System.currentTimeMillis());
 
 		updateAllocatedMips(moduleName);
 		processCloudletSubmit(ev, false);
 		updateAllocatedMips(moduleName);
 
-
 		/*for(Vm vm : getHost().getVmList()){
 			Logger.error(getName(), "MIPS allocated to "+((AppModule)vm).getName()+" = "+getHost().getTotalAllocatedMipsForVm(vm));
 		}*/
 	}
-
 
 	protected void processModuleArrival(SimEvent ev){
 
@@ -799,13 +810,10 @@ public class FogDevice extends PowerDatacenter {
 		String appId = module.getAppId();
 
 		if(!appToModulesMap.containsKey(appId)){
-
 			appToModulesMap.put(appId, new ArrayList<String>());
 		}
-
 		appToModulesMap.get(appId).add(module.getName());
 		processVmCreate(ev, false);
-
 
 		if (module.isBeingInstantiated()) {
 			module.setBeingInstantiated(false);
@@ -814,7 +822,7 @@ public class FogDevice extends PowerDatacenter {
 		initializePeriodicTuples(module);
 		
 		module.updateVmProcessing(CloudSim.clock(), getVmAllocationPolicy().getHost(module).getVmScheduler()
-				.getAllocatedMipsForVm(module));
+			.getAllocatedMipsForVm(module));
 
 	}
 

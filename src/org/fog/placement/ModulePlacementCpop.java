@@ -7,6 +7,7 @@ import org.fog.entities.Actuator;
 import org.fog.entities.FogDevice;
 import org.fog.entities.Sensor;
 import org.fog.entities.Tuple;
+import org.fog.utils.TimeKeeper;
 
 import java.util.*;
 
@@ -27,7 +28,7 @@ public class ModulePlacementCpop  extends ModulePlacement{
      * Stores the current mapping of application modules to fog devices
      */
 
-    protected Map< Integer,String> currentModuleMap= new HashMap<Integer,String>();
+    protected Map< Integer,List<String>> currentModuleMap;
     protected Map<Integer, Map<String, Double>> currentModuleLoadMap;
     protected Map<Integer, Map<String, Integer>> currentModuleInstanceNum;
 
@@ -38,62 +39,70 @@ public class ModulePlacementCpop  extends ModulePlacement{
      */
 
 
-    public ModulePlacementCpop(List<FogDevice> fogdevices, List<Sensor> sensors, List<Actuator> actuators, Application applications ) {
+    public ModulePlacementCpop(List<FogDevice> fogdevices, List<Sensor> sensors, List<Actuator> actuators, Application applications,ModuleMapping moduleMapping ) {
         this.setFogDevices(fogdevices);
         this.setApplication(applications);
         this.setActuators(actuators);
         this.setSensors(sensors);
+        this.setModuleMapping(moduleMapping);
         this.setModuleToDeviceMap(new HashMap<String, List<Integer>>());
         this.setDeviceToModuleMap(new HashMap<Integer, List<AppModule>>());
         this.setNoCriticalPath(new ArrayList<String>());
         this.setCriticalPath(new ArrayList<String>());
         setCurrentModuleLoadMap(new HashMap<Integer, Map<String, Double>>());
         setCurrentModuleInstanceNum(new HashMap<Integer, Map<String, Integer>>());
-        setCurrentModuleMap(new HashMap<>());
+        setCurrentModuleMap(new HashMap<Integer,List<String>>());
 
         for(FogDevice dev : getFogDevices()){
             getCurrentModuleLoadMap().put(dev.getId(), new HashMap<String, Double>());
-            getCurrentModuleMap().put(dev.getId(),null);
+            getCurrentModuleMap().put(dev.getId(),new ArrayList<String>());
             getCurrentModuleInstanceNum().put(dev.getId(), new HashMap<String, Integer>());
+            TimeKeeper.getInstance().getDeviceOccupationTime().put(dev.getId(),new ArrayList<Double>());
         }
 
         mapModules();
+        setModuleInstanceCountMap(getCurrentModuleInstanceNum());
     }
 
 
 
     @Override
     protected void mapModules() {
+
         listScheduling();
         /**
          * ajout des sensors et des actuators aux modules à placer
          */
-        getHeftPlacement();
+        List<String> placedModules = new ArrayList<String>();
 
-        for( int deviceId   : getCurrentModuleMap().keySet()){
-            if(getCurrentModuleMap().get(deviceId) != null){
-                String name  = getCurrentModuleMap().get(deviceId);
+
+        getCpopPlacement();
+
+        for(int deviceId : getCurrentModuleMap().keySet()){
+            for(String module : getCurrentModuleMap().get(deviceId)){
                 FogDevice device =getDeviceById(deviceId);
-                AppModule module = getApplication().getModuleByName(name);
-                createModuleInstanceOnDevice(module, device);
+                createModuleInstanceOnDevice(getApplication().getModuleByName(module),device);
+
             }
 
         }
 
     }
 
-    public void getHeftPlacement()
+    public void getCpopPlacement()
 
     {
         orderModule();
         List <String> orderModule = criticalPath;
         List <String> _orderModule = noCriticalPath;
 
-        if(orderModule.size()>0)
+        if (orderModule.size()>0)
         {
             Map<Integer, Double>  nameToMips = new HashMap<Integer,Double>();
             double mipsRate =0;
+
             int criticalPathSumMips = 0;
+
                 for(String name : criticalPath)
                 {
                     AppModule _module = getApplication().getModuleByName(name);
@@ -106,20 +115,19 @@ public class ModulePlacementCpop  extends ModulePlacement{
 
                 nameToMips.put(fogDevice.getId(),mipsRate);
             }
-
             int deviceId=0;
+
             deviceId = getMinKey(nameToMips);
             /**
              * effectue le placement du module sur un device s'il est libre sinon il  fait le placement sur un autre device disponible
              */
             for(String moduleName :criticalPath)
             {
+                currentModuleMap.get(deviceId).add(moduleName);
                 FogDevice device = getDeviceById(deviceId);
                 System.out.println("Placement of operator "+moduleName+ " on device "+device.getName()+ " successful.");
 
             }
-
-            currentModuleMap.put(deviceId,criticalPath.get(0));
         }
 
         while(_orderModule.size()>0)
@@ -146,25 +154,32 @@ public class ModulePlacementCpop  extends ModulePlacement{
 
            if(!currentModuleMap.containsKey(deviceId))
             {
+                getCurrentModuleInstanceNum().get(deviceId).put(moduleName, 0);
                 noCriticalPath.remove(moduleName);
                 FogDevice device = getDeviceById(deviceId);
                 System.out.println("Placement of operator "+moduleName+ " on device "+device.getName()+ " successful.");
+                _orderModule.remove(moduleName);
+
             }
+
             else
             {
                 for(Integer module : currentModuleMap.keySet()) {
-                    if (currentModuleMap.get(module) !=null ) {
+                    if (!currentModuleMap.get(module).isEmpty() ) {
                         nameToMips.remove(module);
                     }
                 }
 
                 deviceId =getMinKey(nameToMips);
                 FogDevice device = getDeviceById(deviceId);
-                System.out.println("Placement of operator "+moduleName+ " on device "+ device.getName()+ " successful.");
+                getCurrentModuleInstanceNum().get(deviceId).put(moduleName, 0);
                 noCriticalPath.remove(moduleName);
+                System.out.println("Placement of operator "+moduleName+ " on device "+ device.getName()+ " successful.");
+                _orderModule.remove(moduleName);
 
             }
-            currentModuleMap.put(deviceId,moduleName);
+
+            currentModuleMap.get(deviceId).add(moduleName);
         }
 
     }
@@ -200,7 +215,7 @@ public class ModulePlacementCpop  extends ModulePlacement{
         double rang ;
         for (AppEdge edge : getApplication().getEdges()) {
             if(edge.getDestination()!="DISPLAY")
-            if (edge.getSource().contentEquals(appModule.getName()) & (Tuple.UP == edge.getDirection())) {
+                if (edge.getSource().contentEquals(appModule.getName()) & (Tuple.UP == edge.getDirection())) {
                 rang = edge.getTupleCpuLength() + getApplication().getModuleByName(edge.getSource()).getMips();
                 currentRank.put( edge.getDestination(),rang);
                 TREEPASSAGE=true;
@@ -221,7 +236,7 @@ public class ModulePlacementCpop  extends ModulePlacement{
             Set set = sortedMap.entrySet();
             Iterator iterator=set.iterator();
             Map.Entry entry = (Map.Entry) iterator.next();
-            return appModule.getMips() + (Double) entry.getValue() + rankUpward(getApplication().getModuleByName((String) entry.getKey()));
+            return /*appModule.getMips() +*/ (Double) entry.getValue() + rankUpward(getApplication().getModuleByName((String) entry.getKey()));
         }
     }
 
@@ -232,6 +247,7 @@ public class ModulePlacementCpop  extends ModulePlacement{
         Map<String, Double> currentRankDownward= new HashMap<String, Double>();
         double rang=0 ;
         for (AppEdge edge : getApplication().getEdges()) {
+
             if (edge.getSource()!="EEG")
                 try {
                 if (edge.getDestination().equalsIgnoreCase(appModule.getName()) & (Tuple.UP == edge.getDirection())) {
@@ -258,7 +274,7 @@ public class ModulePlacementCpop  extends ModulePlacement{
             Set set = sortedMapDownward.entrySet();
             Iterator iterator=set.iterator();
             Map.Entry entry = (Map.Entry) iterator.next();
-            return appModule.getMips() + (Double) entry.getValue() + rankDownward(getApplication().getModuleByName((String) entry.getKey()));
+            return /*appModule.getMips() +*/ (Double) entry.getValue() + rankDownward(getApplication().getModuleByName((String) entry.getKey()));
         }
 
     }
@@ -296,13 +312,17 @@ public class ModulePlacementCpop  extends ModulePlacement{
      */
     public  void  orderModule(){
         Map<String,Double> map = new HashMap<>(priority);
-        Double value =map.get("client");
+        Double value =map.get("module1");
       for (AppModule module :getApplication().getModules())
         {
-            if( map.get(module.getName()).equals(value))
-                 criticalPath.add(module.getName());
+            if(map.get(module.getName()) >= value )
+            {
+                criticalPath.add(module.getName());
+            }
             else
-               noCriticalPath.add(module.getName());
+            {
+                noCriticalPath.add(module.getName());
+            }
 
         }
     }
@@ -345,7 +365,7 @@ public class ModulePlacementCpop  extends ModulePlacement{
     public static List<Actuator> getActuators() {
         return actuators;
     }
-    public Map<Integer,String> getCurrentModuleMap() {
+    public Map<Integer,List<String>> getCurrentModuleMap() {
         return currentModuleMap;
     }
 
@@ -356,7 +376,7 @@ public class ModulePlacementCpop  extends ModulePlacement{
     public Map<Integer, Map<String, Integer>> getCurrentModuleInstanceNum() {
         return currentModuleInstanceNum;
     }
-    public void setCurrentModuleMap(Map<Integer, String> currentModuleMap) {
+    public void setCurrentModuleMap(HashMap<Integer, List<String>> currentModuleMap) {
         this.currentModuleMap = currentModuleMap;
     }
 

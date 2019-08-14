@@ -37,12 +37,12 @@ public class ModulePlacementHets extends ModulePlacement{
      */
 
 
-    public ModulePlacementHets(List<FogDevice> fogdevices, List<Sensor> sensors, List<Actuator> actuators, Application applications ) {
-
+    public ModulePlacementHets(List<FogDevice> fogdevices, List<Sensor> sensors, List<Actuator> actuators, Application applications,ModuleMapping moduleMapping ) {
         this.setFogDevices(fogdevices);
         this.setApplication(applications);
         this.setActuators(actuators);
         this.setSensors(sensors);
+        this.setModuleMapping(moduleMapping);
         this.setModuleToDeviceMap(new HashMap<String, List<Integer>>());
         this.setDeviceToModuleMap(new HashMap<Integer, List<AppModule>>());
         setCurrentModuleMap(new HashMap<Integer, List<String>>());
@@ -55,9 +55,11 @@ public class ModulePlacementHets extends ModulePlacement{
             getCurrentCpuLoad().put(dev.getId(), 0.0);
             getCurrentModuleLoadMap().put(dev.getId(), new HashMap<String, Double>());
             getCurrentModuleInstanceNum().put(dev.getId(), new HashMap<String, Integer>());
+            TimeKeeper.getInstance().getDeviceOccupationTime().put(dev.getId(),new ArrayList<Double>());
         }
 
         mapModules();
+        setModuleInstanceCountMap(getCurrentModuleInstanceNum());
 
     }
 
@@ -96,8 +98,6 @@ public class ModulePlacementHets extends ModulePlacement{
     }
 
 
-
-
     public void getHetsPlacement(List<String> placedModules)
 
     {       int deviceId=0;
@@ -122,19 +122,22 @@ public class ModulePlacementHets extends ModulePlacement{
 
             deviceId = getMinKey(nameToMips);
 
+            getCurrentModuleInstanceNum().get(deviceId).put(moduleName, 0);
             /**
              * effectue le placement du module sur un device s'il est libre sinon il  fait le placement sur un autre device disponible
              */
-            if(!currentModuleMap.containsKey(deviceId))
+            if(currentModuleMap.get(deviceId).isEmpty())
             {
-              orderModule.remove(moduleName);
+                orderModule.remove(moduleName);
                 FogDevice device = getDeviceById(deviceId);
                 currentModuleMap.get(deviceId).add(moduleName);
                 //double availableMips= device.getVmAllocationPolicy().getHostList().get(0).getPeList().get(0).getPeProvisioner().getMips()-getApplication().getModuleByName(moduleName).getMips();
                 //device.getVmAllocationPolicy().getHostList().get(0).getPeList().get(0).getPeProvisioner().setMips(availableMips);
                 System.out.println("Placement of operator "+moduleName+ " on device "+device.getName()+ " successful.");
+                getCurrentModuleInstanceNum().get(deviceId).put(moduleName, getCurrentModuleInstanceNum().get(deviceId).get(moduleName)+1);
 
             }
+
             else
             {
                 for(Integer _module : currentModuleMap.keySet()) {
@@ -147,7 +150,10 @@ public class ModulePlacementHets extends ModulePlacement{
                 deviceId =getMinKey(nameToMips);
                 FogDevice device = getDeviceById(deviceId);
                 currentModuleMap.get(deviceId).add(moduleName);
+                getCurrentModuleInstanceNum().get(deviceId).put(moduleName, 0);
+                getCurrentModuleInstanceNum().get(deviceId).put(moduleName, getCurrentModuleInstanceNum().get(deviceId).get(moduleName)+1);
                 System.out.println("Placement of operator "+moduleName+ " on device "+ device.getName()+ " successful.");
+
 
             }
 

@@ -96,8 +96,10 @@ public class PowerVm extends Vm {
 			if (CloudSim.clock() != 0 || utilization != 0) {
 				addUtilizationHistoryValue(utilization);
 			}
+
 			setPreviousTime(currentTime);
 		}
+
 		return time;
 	}
 

@@ -155,6 +155,7 @@ public class SimEvent implements Cloneable, Comparable<SimEvent> {
 	 * 
 	 * @return The simulation time
 	 */
+
 	public double eventTime() {
 		return time;
 	}
