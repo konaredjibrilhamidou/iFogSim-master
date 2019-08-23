@@ -85,6 +85,7 @@ public class Sensor extends SimEntity{
 			if(edge.getSource().equals(getTupleType()))
 				_edge = edge;
 		}
+
 		long cpuLength = (long) _edge.getTupleCpuLength();
 		long nwLength = (long) _edge.getTupleNwLength();
 		
@@ -101,6 +102,7 @@ public class Sensor extends SimEntity{
 		tuple.setActualTupleId(actualTupleId);
 		
 		send(gatewayDeviceId, getLatency(), FogEvents.TUPLE_ARRIVAL,tuple);
+
 
 	}
 	

@@ -557,6 +557,7 @@ public class Datacenter extends SimEntity {
 		catch (ClassCastException c) {
 			try {
 				Cloudlet cl = (Cloudlet) ev.getData();
+
 				cloudletId = cl.getCloudletId();
 				userId = cl.getUserId();
 				vmId = cl.getVmId();
@@ -677,6 +678,7 @@ public class Datacenter extends SimEntity {
 	 * @post $none
 	 */
 	protected void processCloudletSubmit(SimEvent ev, boolean ack) {
+
 		updateCloudletProcessing();
 		try {
 			// gets the Cloudlet object
@@ -709,6 +711,7 @@ public class Datacenter extends SimEntity {
 
 				return;
 			}
+
 
 			// process this Cloudlet to this CloudResource
 			cl.setResourceParameter(getId(), getCharacteristics().getCostPerSecond(), getCharacteristics()
@@ -889,6 +892,7 @@ public class Datacenter extends SimEntity {
 			if (smallerTime < CloudSim.clock() + CloudSim.getMinTimeBetweenEvents() + 0.01) {
 				smallerTime = CloudSim.clock() + CloudSim.getMinTimeBetweenEvents() + 0.01;
 			}
+
 			if (smallerTime != Double.MAX_VALUE) {
 				schedule(getId(), (smallerTime - CloudSim.clock()), CloudSimTags.VM_DATACENTER_EVENT);
 			}

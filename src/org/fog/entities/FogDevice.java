@@ -242,7 +242,6 @@ public class FogDevice extends PowerDatacenter {
 
 	@Override
 	protected void processOtherEvent(SimEvent ev) {
-
 		switch(ev.getTag()){
 		case FogEvents.TUPLE_ARRIVAL:
 			processTupleArrival(ev);
@@ -461,13 +460,7 @@ public class FogDevice extends PowerDatacenter {
 					if (cl != null) {
 						cloudletCompleted = true;
 						Tuple tuple = (Tuple)cl;
-
 						TimeKeeper.getInstance().tupleEndedExecution(tuple);
-
-						lockTime = TimeKeeper.getInstance().getExecutionTimeModule().get("vr_game").get(0)+Calendar.getInstance().getTimeInMillis();
-
-						TimeKeeper.getInstance().getExecutionTimeModule().get("vr_game").add(lockTime);
-
 						Application application = getApplicationMap().get(tuple.getAppId());
 						Logger.debug(getName(), "Completed execution of tuple "+tuple.getCloudletId()+"on "+tuple.getDestModuleName());
 						List<Tuple> resultantTuples = application.getResultantTuples(tuple.getDestModuleName(), tuple, getId(), vm.getId());
@@ -485,6 +478,7 @@ public class FogDevice extends PowerDatacenter {
 		if(cloudletCompleted)
 			updateAllocatedMips(null);
 	}
+
 	
 	protected void updateTimingsOnSending(Tuple resTuple) {
 		// TODO ADD CODE FOR UPDATING TIMINGS WHEN A TUPLE IS GENERATED FROM A PREVIOUSLY RECIEVED TUPLE. 
@@ -545,6 +539,7 @@ public class FogDevice extends PowerDatacenter {
 
 
 	private void updateEnergyConsumption() {
+
 		double totalMipsAllocated = 0;
 		for(final Vm vm : getHost().getVmList()){
 			AppModule operator = (AppModule)vm;
@@ -557,7 +552,6 @@ public class FogDevice extends PowerDatacenter {
 		double currentEnergyConsumption = getEnergyConsumption();
 		double newEnergyConsumption = currentEnergyConsumption + (timeNow-lastUtilizationUpdateTime)*getHost().getPowerModel().getPower(lastUtilization);
 		setEnergyConsumption(newEnergyConsumption);
-
 
 		if(getName().startsWith("d") && getEnergyConsumption() > 834333 )
 			TimeKeeper.getInstance().getDeviceOccupationTime().get(getId()).add((double)System.currentTimeMillis());
@@ -582,7 +576,6 @@ public class FogDevice extends PowerDatacenter {
 		double currentCost = getTotalCost();
 		double newcost = currentCost + (timeNow-lastUtilizationUpdateTime)*getRatePerMips()*lastUtilization*getHost().getTotalMips();
 		setTotalCost(newcost);
-		
 		lastUtilization = Math.min(1, totalMipsAllocated/getHost().getTotalMips());
 		lastUtilizationUpdateTime = timeNow;
 	}
@@ -602,6 +595,7 @@ public class FogDevice extends PowerDatacenter {
 		if(!getChildToOperatorsMap().containsKey(childId))
 			getChildToOperatorsMap().put(childId, new ArrayList<String>());
 	}
+
 	
 	protected void updateCloudTraffic(){
 		int time = (int)CloudSim.clock()/1000;
@@ -645,6 +639,7 @@ public class FogDevice extends PowerDatacenter {
 		Tuple tuple = (Tuple)ev.getData();
 
 		if(getName().equals("cloud")){
+
 			updateCloudTraffic();
 		}
 		
@@ -663,7 +658,6 @@ public class FogDevice extends PowerDatacenter {
 			sendTupleToActuator(tuple);
 			return;
 		}
-
 
 		if(getHost().getVmList().size() > 0){
 			final AppModule operator = (AppModule)getHost().getVmList().get(0);
@@ -696,15 +690,13 @@ public class FogDevice extends PowerDatacenter {
 					return;
 				}
 
+				System.out.println(ev.eventTime());
 
 				tuple.setVmId(vmId);
 
 				//Logger.error(getName(), "Executing tuple for operator " + moduleName);
 
 				updateTimingsOnReceipt(tuple);
-
-				if(TimeKeeper.getInstance().getExecutionTimeModule().get("vr_game").isEmpty())
-						TimeKeeper.getInstance().getExecutionTimeModule().get("vr_game").add((double) Calendar.getInstance().getTimeInMillis());
 
 				executeTuple(ev, tuple.getDestModuleName());
 
@@ -716,10 +708,10 @@ public class FogDevice extends PowerDatacenter {
 					for(int childId : getChildrenIds())
 						sendDown(tuple, childId);
 				}
+
 			}else{
 				sendUp(tuple);
 			}
-
 
 		}else{
 			if(tuple.getDirection() == Tuple.UP)
@@ -751,8 +743,6 @@ public class FogDevice extends PowerDatacenter {
 					TimeKeeper.getInstance().getLoopIdToCurrentAverage().put(loop.getLoopId(), 0.0);
 					TimeKeeper.getInstance().getLoopIdToCurrentNum().put(loop.getLoopId(), 0);
 				}
-
-
 				double currentAverage = TimeKeeper.getInstance().getLoopIdToCurrentAverage().get(loop.getLoopId());
 				int currentCount = TimeKeeper.getInstance().getLoopIdToCurrentNum().get(loop.getLoopId());
 				double delay = CloudSim.clock()- TimeKeeper.getInstance().getEmitTimes().get(tuple.getActualTupleId());
@@ -770,9 +760,6 @@ public class FogDevice extends PowerDatacenter {
 	protected void processSensorJoining(SimEvent ev){
 		send(ev.getSource(), CloudSim.getMinTimeBetweenEvents(), FogEvents.TUPLE_ACK);
 	}
-
-
-
 
 	protected void executeTuple(SimEvent ev, String moduleName){
 
@@ -794,7 +781,6 @@ public class FogDevice extends PowerDatacenter {
 		}
 
 		TimeKeeper.getInstance().tupleStartedExecution(tuple);
-
 		updateAllocatedMips(moduleName);
 		processCloudletSubmit(ev, false);
 		updateAllocatedMips(moduleName);
@@ -827,6 +813,7 @@ public class FogDevice extends PowerDatacenter {
 	}
 
 
+
 	private void initializePeriodicTuples(AppModule module) {
 		String appId = module.getAppId();
 		Application app = getApplicationMap().get(appId);
@@ -854,7 +841,8 @@ public class FogDevice extends PowerDatacenter {
 		double networkDelay = tuple.getCloudletFileSize()/getUplinkBandwidth();
 		setNorthLinkBusy(true);
 		send(getId(), networkDelay, FogEvents.UPDATE_NORTH_TUPLE_QUEUE);
-		send(parentId, networkDelay+getUplinkLatency(), FogEvents.TUPLE_ARRIVAL, tuple);
+		send(parentId, 2/*networkDelay+getUplinkLatency()*/, FogEvents.TUPLE_ARRIVAL, tuple);
+
 		NetworkUsageMonitor.sendingTuple(getUplinkLatency(), tuple.getCloudletFileSize());
 	}
 	
@@ -887,7 +875,8 @@ public class FogDevice extends PowerDatacenter {
 		send(childId, networkDelay+latency, FogEvents.TUPLE_ARRIVAL, tuple);
 		NetworkUsageMonitor.sendingTuple(latency, tuple.getCloudletFileSize());
 	}
-	
+
+
 	protected void sendDown(Tuple tuple, int childId){
 		if(getChildrenIds().contains(childId)){
 			if(!isSouthLinkBusy()){

@@ -24,8 +24,6 @@ public class TimeKeeper {
 	private Map<Integer, Double> loopIdToCurrentAverage;
 	private Map<Integer, Integer> loopIdToCurrentNum;
 
-
-
 	/***
 	 * djibril
 	 * @return
@@ -45,8 +43,6 @@ public class TimeKeeper {
 	
 	public void tupleStartedExecution(Tuple tuple){
 		tupleIdToCpuStartTime.put(tuple.getCloudletId(), CloudSim.clock());
-
-
 	}
 	
 	public void tupleEndedExecution(Tuple tuple){
@@ -63,7 +59,6 @@ public class TimeKeeper {
 		}
 
 	}
-
 
 	public Map<Integer, List<Integer>> loopIdToTupleIds(){
 		return getInstance().getLoopIdToTupleIds();

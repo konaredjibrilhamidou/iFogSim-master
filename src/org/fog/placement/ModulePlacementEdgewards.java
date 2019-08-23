@@ -221,7 +221,6 @@ public class ModulePlacementEdgewards extends ModulePlacement{
 							}
 						} else{
 
-
 							placedModules.add(moduleName);
 							getCurrentCpuLoad().put(deviceId, getCurrentCpuLoad().get(deviceId)+totalCpuLoad);
 							getCurrentModuleInstanceNum().get(deviceId).put(moduleName, getCurrentModuleInstanceNum().get(deviceId).get(moduleName)+1);
@@ -237,7 +236,6 @@ public class ModulePlacementEdgewards extends ModulePlacement{
 							totalCpuLoad += rate*edge.getTupleCpuLength();
 						}
 					}
-
 
 					if(totalCpuLoad + getCurrentCpuLoad().get(deviceId) > device.getHost().getTotalMips()){
 						Logger.debug("ModulePlacementEdgeward", "Placement of operator "+moduleName+ "NOT POSSIBLE on device "+device.getName());

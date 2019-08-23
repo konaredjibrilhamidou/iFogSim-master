@@ -624,7 +624,6 @@ public class CloudSim {
 		if (delay < 0) {
 			throw new IllegalArgumentException("Send delay can't be negative.");
 		}
-
 		SimEvent e = new SimEvent(SimEvent.SEND, clock + delay, src, dest, tag, data);
 		future.addEventFirst(e);
 	}

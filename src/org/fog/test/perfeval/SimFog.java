@@ -44,10 +44,11 @@ public class SimFog {
 
     static boolean CLOUD = false;
 
-    static int numOfDepts =4;//           4 4 4 4
-    static int numOfMobilesPerDept =15;//           12  13 14 15
+    static int numOfDepts =3;//           4 4 4 4
+    static int numOfMobilesPerDept =10;//           12  13 14 15
     static double EEG_TRANSMISSION_TIME = 5.1;
     //static double EEG_TRANSMISSION_TIME = 10;
+
 
     public static void main(String[] args) {
 
@@ -74,7 +75,7 @@ public class SimFog {
                     actuators);
 
             controller.submitApplication(application, 0,
-                    new ModulePlacementCpop(fogDevices, sensors, actuators, application ,moduleMapping));
+                    new ModulePlacementHets(fogDevices, sensors, actuators, application ,moduleMapping));
 
             /**
              * djibril

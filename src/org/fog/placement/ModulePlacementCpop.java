@@ -52,6 +52,7 @@ public class ModulePlacementCpop  extends ModulePlacement{
         setCurrentModuleLoadMap(new HashMap<Integer, Map<String, Double>>());
         setCurrentModuleInstanceNum(new HashMap<Integer, Map<String, Integer>>());
         setCurrentModuleMap(new HashMap<Integer,List<String>>());
+        setPriority(new HashMap<>());
 
         for(FogDevice dev : getFogDevices()){
             getCurrentModuleLoadMap().put(dev.getId(), new HashMap<String, Double>());
@@ -82,7 +83,6 @@ public class ModulePlacementCpop  extends ModulePlacement{
             for(String module : getCurrentModuleMap().get(deviceId)){
                 FogDevice device =getDeviceById(deviceId);
                 createModuleInstanceOnDevice(getApplication().getModuleByName(module),device);
-
             }
 
         }
@@ -192,13 +192,13 @@ public class ModulePlacementCpop  extends ModulePlacement{
         Map<String, Double> _priority= new HashMap<String, Double>();
 
         for(AppModule module : getApplication().getModules())
-
         {
             rankDownward.put(module.getName(),rankDownward(module));
-            rankUpward.put(module.getName(),rankUpward(module));
-            _priority.put(module.getName(),rankUpward(module)+rankDownward(module));
+            rankUpward.put(module.getName(), module.getMips()+rankUpward(module));
+            _priority.put(module.getName(),rankUpward.get(module.getName()) + rankDownward.get(module.getName()));
 
         }
+
         setModuleRankUpward(rankUpward);
         setModuleRankDownward(rankDownward);
         setPriority(_priority);
@@ -209,26 +209,27 @@ public class ModulePlacementCpop  extends ModulePlacement{
      * @param appModule
      * @return list
      */
-
+int i=0;
     public double rankUpward( AppModule appModule) {
+        i++;
         Map<String, Double> currentRank = new HashMap<String, Double>();
         double rang ;
         for (AppEdge edge : getApplication().getEdges()) {
             if(edge.getDestination()!="DISPLAY")
                 if (edge.getSource().contentEquals(appModule.getName()) & (Tuple.UP == edge.getDirection())) {
-                rang = edge.getTupleCpuLength() + getApplication().getModuleByName(edge.getSource()).getMips();
-                currentRank.put( edge.getDestination(),rang);
-                TREEPASSAGE=true;
+                    rang = edge.getTupleCpuLength() + getApplication().getModuleByName(edge.getSource()).getMips();
+                    currentRank.put( edge.getDestination(),rang);
+                    TREEPASSAGE=true;
             }
         }
 
-        if (currentRank.isEmpty() ) {
+        if (currentRank.isEmpty()) {
             if(TREEPASSAGE ) {
                 TREEPASSAGE = false;
                 return 0;
             }
             else
-                return appModule.getMips();
+                return 0;//appModule.getMips();
         }
 
         else
@@ -252,7 +253,7 @@ public class ModulePlacementCpop  extends ModulePlacement{
                 try {
                 if (edge.getDestination().equalsIgnoreCase(appModule.getName()) & (Tuple.UP == edge.getDirection())) {
                     rang = edge.getTupleCpuLength() + getApplication().getModuleByName(edge.getDestination()).getMips();
-                        currentRankDownward.put(edge.getSource(),rang);
+                    currentRankDownward.put(edge.getSource(),rang);
                     TREEPASSAGE=true;
             }
                 } catch(NullPointerException e)
@@ -312,7 +313,7 @@ public class ModulePlacementCpop  extends ModulePlacement{
      */
     public  void  orderModule(){
         Map<String,Double> map = new HashMap<>(priority);
-        Double value =map.get("module1");
+        Double value =map.get("client");
       for (AppModule module :getApplication().getModules())
         {
             if(map.get(module.getName()) >= value )
@@ -323,7 +324,6 @@ public class ModulePlacementCpop  extends ModulePlacement{
             {
                 noCriticalPath.add(module.getName());
             }
-
         }
     }
 

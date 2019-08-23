@@ -15,7 +15,7 @@ public class ApplicationGraph {
 
     static double EEG_TRANSMISSION_TIME = 5.1;
 
-    public static Application createApplication0(String appId, int userId){
+    public static Application createApplication0(String appId, int userId) {
 
         Application application = Application.createApplication(appId, userId); // creates an empty application model (empty directed graph)
 
@@ -24,35 +24,111 @@ public class ApplicationGraph {
          */
         application.addAppModule("module1", 10); // adding module Client to the application model
         application.addAppModule("module2", 10); // adding module Concentration Calculator to the application model
-        application.addAppModule("module3", 10); // adding module Connector to the application model application.addAppModule("module1", 10); // adding module Client to the application model
-        application.addAppModule("module4", 10); // adding module Concentration Calculator to the application model
-        application.addAppModule("module5", 10); // adding module Connector to the application model
-        application.addAppModule("module6", 10); // adding module Connector to the application model
+        application.addAppModule("module3", 10); // adding module Connector to the application model
+        application.addAppModule("module4", 10); // adding module Connector to the application model
 
-
-        if(EEG_TRANSMISSION_TIME==10)
+        /*
+         * Connecting the application modules (vertices) in the application model (directed graph) with edges
+         */
+        if (EEG_TRANSMISSION_TIME == 10)
             application.addAppEdge("EEG", "client", 2000, 500, "EEG", Tuple.UP, AppEdge.SENSOR); // adding edge from EEG (sensor) to Client module carrying tuples of type EEG
         else
 
-            application.addAppEdge("module1", "module2", 3500, 250, "EEG", Tuple.UP, AppEdge.MODULE);
-            application.addAppEdge("module1", "module3", 2000, 250, "EEG", Tuple.UP, AppEdge.MODULE);
-            application.addAppEdge("module3", "module5", 2500, 250, "EEG", Tuple.UP, AppEdge.MODULE);
-            application.addAppEdge("module2", "module5", 1500, 250, "EEG", Tuple.UP, AppEdge.MODULE);
-            application.addAppEdge("module2", "module4", 2500, 250, "EEG", Tuple.UP, AppEdge.MODULE);
-            application.addAppEdge("module4", "module6", 4500, 250, "EEG", Tuple.UP, AppEdge.MODULE);
-            application.addAppEdge("module5", "module6", 3000, 250, "EEG", Tuple.UP, AppEdge.MODULE);
+            application.addAppEdge("EEG", "module1", 3500, 250, "EEG", Tuple.UP, AppEdge.SENSOR);
+        application.addAppEdge("module1", "module2", 3000, 80, "_SENSOR", Tuple.UP, AppEdge.MODULE); // adding edge from Client to Concentration Calculator module carrying tuples of type _SENSOR
+        application.addAppEdge("module1", "module3", 100, 500, 150, "PLAYER_GAME_STATE", Tuple.UP, AppEdge.MODULE); // adding periodic edge (period=1000ms) from Concentration Calculator to Connector module carrying tuples of type PLAYER_GAME_STATE
+        application.addAppEdge("module2", "module3", 14, 500, "CONCENTRATION", Tuple.UP, AppEdge.MODULE);  // adding edge from Concentration Calculator to Client module carrying tuples of type CONCENTRATION
+        application.addAppEdge("module2", "module4", 100, 28, 1000, "GLOBAL_GAME_STATE", Tuple.UP, AppEdge.MODULE); // adding periodic edge (period=1000ms) from Connector to Client module carrying tuples of type GLOBAL_GAME_STATE
+        application.addAppEdge("module3", "module4", 100, 28, 1000, "GLOBAL_GAME_STATE", Tuple.UP, AppEdge.MODULE); // adding periodic edge (period=1000ms) from Connector to Client module carrying tuples of type GLOBAL_GAME_STATE
+        application.addAppEdge("module1", "DISPLAY", 100, 600, "GLOBAL_STATE_UPDATE", Tuple.DOWN, AppEdge.ACTUATOR);  // ad
 
+       final AppLoop loop1 = new AppLoop(new ArrayList<String>() {{
+            add("EEG");
+            add("module1");
+            add("module2");
+            add("module3");
+            add("module3");
+            add("module4");
+            add("EEG");
 
+        }});
+        List<AppLoop> loops = new ArrayList<AppLoop>() {{
+            add(loop1);
+        }};
+        application.setLoops(loops);
 
         return application;
+    }
 
+    public static Application createApplication01(String appId, int userId) {
+
+        Application application = Application.createApplication(appId, userId); // creates an empty application model (empty directed graph)
+        /*
+         * Adding modules (vertices) to the application model (directed graph)
+         */
+        application.addAppModule("module1", 10); // adding module Client to the application model
+        application.addAppModule("module2", 10); // adding module Concentration Calculator to the application model
+        application.addAppModule("module3", 10); // adding module Connector to the application model
+        application.addAppModule("module4", 10); // adding module Connector to the application model
+        application.addAppModule("module5", 10); // adding module Connector to the application model
+        application.addAppModule("module6", 10); // adding module Connector to the application model
+        application.addAppModule("module7", 10); // adding module Connector to the application model
+        application.addAppModule("module8", 10); // adding module Connector to the application model
+        application.addAppModule("module9", 10); // adding module Connector to the application model
+        application.addAppModule("module10", 10); // adding module Connector to the application model
+        application.addAppModule("module11", 10); // adding module Connector to the application model
+
+        /*
+         * Connecting the application modules (vertices) in the application model (directed graph) with edges
+         */
+        if (EEG_TRANSMISSION_TIME == 10)
+            application.addAppEdge("EEG", "client", 2000, 500, "EEG", Tuple.UP, AppEdge.SENSOR); // adding edge from EEG (sensor) to Client module carrying tuples of type EEG
+        else
+            application.addAppEdge("EEG", "module1", 3500, 250, "EEG", Tuple.UP, AppEdge.SENSOR);
+        application.addAppEdge("module1", "module2", 3000, 80, "TYPE_1_2", Tuple.UP, AppEdge.MODULE); // adding edge from Client to Concentration Calculator module carrying tuples of type _SENSOR
+        application.addAppEdge("module1", "module3", 100, 500, 150, "TYPE_1_3", Tuple.UP, AppEdge.MODULE); // adding periodic edge (period=1000ms) from Concentration Calculator to Connector module carrying tuples of type PLAYER_GAME_STATE
+        application.addAppEdge("module1", "module4", 14, 500, "TYPE_1_4", Tuple.UP, AppEdge.MODULE);  // adding edge from Concentration Calculator to Client module carrying tuples of type CONCENTRATION
+        application.addAppEdge("module1", "module5", 100, 28, 1000, "TYPE_1_5", Tuple.UP, AppEdge.MODULE); // adding periodic edge (period=1000ms) from Connector to Client module carrying tuples of type GLOBAL_GAME_STATE
+        application.addAppEdge("module1", "module6", 100, 28, 1000, "TYPE_1_6", Tuple.UP, AppEdge.MODULE); // adding periodic edge (period=1000ms) from Connector to Client module carrying tuples of type GLOBAL_GAME_STATE
+        application.addAppEdge("module2", "module7", 100, 600, "TYPE_2_6", Tuple.UP, AppEdge.MODULE);  // ad
+        application.addAppEdge("module6", "module7", 100, 600, "TYPE_6_7", Tuple.UP, AppEdge.MODULE);  // ad
+        application.addAppEdge("module3", "module8", 100, 600, "TYPE_3_8", Tuple.UP, AppEdge.MODULE);  // ad
+        application.addAppEdge("module8", "module10", 100, 600, "TYPE_8_10", Tuple.UP, AppEdge.MODULE);  // ad
+        application.addAppEdge("module4", "module10", 100, 600, "TYPE_4_10", Tuple.UP, AppEdge.MODULE);  // ad
+        application.addAppEdge("module5", "module9", 100, 600, "TYPE_5_9", Tuple.UP, AppEdge.MODULE);  // ad
+        application.addAppEdge("module10", "module11", 100, 600, "TYPE_10_11", Tuple.UP, AppEdge.MODULE);  // ad
+        application.addAppEdge("module9", "module11", 100, 600, "TYPE_9_11", Tuple.UP, AppEdge.MODULE);  // ad
+        application.addAppEdge("module1", "DISPLAY", 100, 600, "GLOBAL_STATE_UPDATE", Tuple.DOWN, AppEdge.ACTUATOR);  // ad
+
+
+        application.addTupleMapping("module1", "EEG", "TYPE_1_2", new FractionalSelectivity(0.9)); // 0.9 tuples of type _SENSOR are emitted by Client module per incoming tuple of type EEG
+        application.addTupleMapping("module2", "TYPE_1_2", "TYPE_2_7", new FractionalSelectivity(1.0)); // 1.0 tuples of type SELF_STATE_UPDATE are emitted by Client module per incoming tuple of type CONCENTRATION
+        application.addTupleMapping("module3", "TYPE_1_3", "TYPE_3_8", new FractionalSelectivity(1.0)); // 1.0 tuples of type CONCENTRATION are emitted by Concentration Calculator module per incoming tuple of type _SENSOR
+        application.addTupleMapping("module4", "TYPE_1_4", "TYPE_4_10", new FractionalSelectivity(1.0)); // 1.0 tuples of type GLOBAL_STATE_UPDATE are emitted by Client module per incoming tuple of type GLOBAL_GAME_STATE
+        application.addTupleMapping("module5", "TYPE_1_5", "TYPE_5_9", new FractionalSelectivity(1.0)); // 1.0 tuples of type GLOBAL_STATE_UPDATE are emitted by Client module per incoming tuple of type GLOBAL_GAME_STATE
+        application.addTupleMapping("module6", "TYPE_1_6", "TYPE_6_7", new FractionalSelectivity(1.0)); // 1.0 tuples of type GLOBAL_STATE_UPDATE are emitted by Client module per incoming tuple of type GLOBAL_GAME_STATE
+        application.addTupleMapping("module8", "TYPE_3_8", "TYPE_8_10", new FractionalSelectivity(1.0)); // 1.0 tuples of type GLOBAL_STATE_UPDATE are emitted by Client module per incoming tuple of type GLOBAL_GAME_STATE
+        application.addTupleMapping("module9", "TYPE_5_9", "TYPE_9_11", new FractionalSelectivity(1.0)); // 1.0 tuples of type GLOBAL_STATE_UPDATE are emitted by Client module per incoming tuple of type GLOBAL_GAME_STATE
+        application.addTupleMapping("module10", "TYPE_8_10", "TYPE_10_11", new FractionalSelectivity(1.0)); // 1.0 tuples of type GLOBAL_STATE_UPDATE are emitted by Client module per incoming tuple of type GLOBAL_GAME_STATE
+
+
+        final AppLoop loop1 = new AppLoop(new ArrayList<String>() {{
+            add("EEG"); add("module1"); add("module2"); add("module3"); add("module3");
+            add("module4");add("module5");add("module6");add("module7");add("module8");
+            add("module9");add("module10");add("module11"); add("EEG");
+        }});
+        List<AppLoop> loops = new ArrayList<AppLoop>() {{
+            add(loop1);
+        }};
+        application.setLoops(loops);
+
+        return application;
     }
 
 
+
+
     public static Application createApplication1(String appId, int userId){
-
-
-
 
            Application application = Application.createApplication(appId, userId); // creates an empty application model (empty directed graph)
 
@@ -69,14 +145,7 @@ public class ApplicationGraph {
            if(EEG_TRANSMISSION_TIME==10)
                application.addAppEdge("EEG", "client", 2000, 500, "EEG", Tuple.UP, AppEdge.SENSOR); // adding edge from EEG (sensor) to Client module carrying tuples of type EEG
            else
-			/*application.addAppEdge("EEG", "client", 3000, 500, "EEG", Tuple.UP, AppEdge.SENSOR);
-		application.addAppEdge("client", "concentration_calculator", 3500, 500, "_SENSOR", Tuple.UP, AppEdge.MODULE); // adding edge from Client to Concentration Calculator module carrying tuples of type _SENSOR
-		application.addAppEdge("concentration_calculator", "connector", 100, 1000, 1000, "PLAYER_GAME_STATE", Tuple.UP, AppEdge.MODULE); // adding periodic edge (period=1000ms) from Concentration Calculator to Connector module carrying tuples of type PLAYER_GAME_STATE
-		application.addAppEdge("concentration_calculator", "client", 14, 500, "CONCENTRATION", Tuple.DOWN, AppEdge.MODULE);  // adding edge from Concentration Calculator to Client module carrying tuples of type CONCENTRATION
-		application.addAppEdge("connector", "client", 100, 28, 1000, "GLOBAL_GAME_STATE", Tuple.DOWN, AppEdge.MODULE); // adding periodic edge (period=1000ms) from Connector to Client module carrying tuples of type GLOBAL_GAME_STATE
-		application.addAppEdge("client", "DISPLAY", 1000, 500, "SELF_STATE_UPDATE", Tuple.DOWN, AppEdge.ACTUATOR);  // adding edge from Client module to Display (actuator) carrying tuples of type SELF_STATE_UPDATE
-		application.addAppEdge("client", "DISPLAY", 1000, 500, "GLOBAL_STATE_UPDATE", Tuple.DOWN, AppEdge.ACTUATOR);  // adapplication.addAppEdge("EEG", "client", 3000, 500, "EEG", Tuple.UP, AppEdge.SENSOR);
-		*/
+
 			application.addAppEdge("EEG", "client", 3500, 250, "EEG", Tuple.UP, AppEdge.SENSOR);
            application.addAppEdge("client", "concentration_calculator", 3000, 80, "_SENSOR", Tuple.UP, AppEdge.MODULE); // adding edge from Client to Concentration Calculator module carrying tuples of type _SENSOR
            application.addAppEdge("concentration_calculator", "connector", 100, 500, 150, "PLAYER_GAME_STATE", Tuple.UP, AppEdge.MODULE); // adding periodic edge (period=1000ms) from Concentration Calculator to Connector module carrying tuples of type PLAYER_GAME_STATE
@@ -103,47 +172,6 @@ public class ApplicationGraph {
 
            return application;
 
-/*
-        Application application = Application.createApplication(appId, userId); // creates an empty application model (empty directed graph)
-
-        /*
-         * Adding modules (vertices) to the application model (directed graph)
-         */
-/*
-           application.addAppModule("client", 9,2500,2500,2000); // adding module Client to the application model
-           application.addAppModule("concentration_calculator", 4,1250,2000,2500); // adding module Concentration Calculator to the application model
-           application.addAppModule("connector", 8,1000,1500,2000); // adding module Connector to the application model
-        /*
-         * Connecting the application modules (vertices) in the application model (directed graph) with edges
-      */
-/*
-           application.addAppEdge("EEG", "client", 3500, 250, "EEG", Tuple.UP, AppEdge.SENSOR);
-           application.addAppEdge("client", "concentration_calculator", 3000, 80, "_SENSOR", Tuple.UP, AppEdge.MODULE); // adding edge from Client to Concentration Calculator module carrying tuples of type _SENSOR
-           application.addAppEdge("concentration_calculator", "connector", 100, 500, 150, "PLAYER_GAME_STATE", Tuple.UP, AppEdge.MODULE); // adding periodic edge (period=1000ms) from Concentration Calculator to Connector module carrying tuples of type PLAYER_GAME_STATE
-           application.addAppEdge("concentration_calculator", "client", 14, 500, "CONCENTRATION", Tuple.DOWN, AppEdge.MODULE);  // adding edge from Concentration Calculator to Client module carrying tuples of type CONCENTRATION
-           application.addAppEdge("connector", "client", 100, 28, 1000, "GLOBAL_GAME_STATE", Tuple.DOWN, AppEdge.MODULE); // adding periodic edge (period=1000ms) from Connector to Client module carrying tuples of type GLOBAL_GAME_STATE
-           application.addAppEdge("client", "DISPLAY", 950, 500, "SELF_STATE_UPDATE", Tuple.DOWN, AppEdge.ACTUATOR);  // adding edge from Client module to Display (actuator) carrying tuples of type SELF_STATE_UPDATE
-           application.addAppEdge("client", "DISPLAY", 100, 600, "GLOBAL_STATE_UPDATE", Tuple.DOWN, AppEdge.ACTUATOR);  // adding edge from Client module to Display (actuator) carrying tuples of type GLOBAL_STATE_UPDATE
-
-           /*
-            * Defining the input-output relationships (represented by selectivity) of the application modules.
-            */
-  /*         application.addTupleMapping("client", "EEG", "_SENSOR", new FractionalSelectivity(0.9)); // 0.9 tuples of type _SENSOR are emitted by Client module per incoming tuple of type EEG
-           application.addTupleMapping("client", "CONCENTRATION", "SELF_STATE_UPDATE", new FractionalSelectivity(1.0)); // 1.0 tuples of type SELF_STATE_UPDATE are emitted by Client module per incoming tuple of type CONCENTRATION
-           application.addTupleMapping("concentration_calculator", "_SENSOR", "CONCENTRATION", new FractionalSelectivity(1.0)); // 1.0 tuples of type CONCENTRATION are emitted by Concentration Calculator module per incoming tuple of type _SENSOR
-           application.addTupleMapping("client", "GLOBAL_GAME_STATE", "GLOBAL_STATE_UPDATE", new FractionalSelectivity(1.0)); // 1.0 tuples of type GLOBAL_STATE_UPDATE are emitted by Client module per incoming tuple of type GLOBAL_GAME_STATE
-
-		/*
-        /*
-         * Defining application loops to monitor the latency of.
-         * Here, we add only one loop for monitoring : EEG(sensor) -> Client -> Concentration Calculator -> Client -> DISPLAY (actuator)
-         */
-    /*       final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("EEG");add("client");add("concentration_calculator");add("client");add("DISPLAY");}});
-           List<AppLoop> loops = new ArrayList<AppLoop>(){{add(loop1);}};
-           application.setLoops(loops);
-
-           return application;
-      */
     }
 
     public static Application createApplication2(String appId, int userId){

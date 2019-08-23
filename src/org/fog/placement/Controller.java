@@ -197,23 +197,24 @@ public class Controller extends SimEntity{
 		System.out.println("=========================================");
 		System.out.println("TUPLE CPU EXECUTION DELAY");
 		System.out.println("=========================================");
-		
+		double averageCpuTime=0;
 		for(String tupleType : TimeKeeper.getInstance().getTupleTypeToAverageCpuTime().keySet()){
+			averageCpuTime += TimeKeeper.getInstance().getTupleTypeToAverageCpuTime().get(tupleType);
 			System.out.println(tupleType + " ---> "+TimeKeeper.getInstance().getTupleTypeToAverageCpuTime().get(tupleType));
 		}
-		
+		System.out.println("TIME" + " ---> "+averageCpuTime);
+		System.out.println("=========================================");
+/*
 		System.out.println("=========================================");
 
 		for(String moduleName : TimeKeeper.getInstance().getExecutionTimeModule().keySet())
 		{	int lastindex=TimeKeeper.getInstance().getExecutionTimeModule().get(moduleName).size()-1;
-			System.out.println("PLACEMENT EXECUTION TIME   ---> "+(int)(TimeKeeper.getInstance().getExecutionTimeModule().get(moduleName).get(lastindex) - TimeKeeper.getInstance().getExecutionTimeModule().get(moduleName).get(0)));
 			sumTimeOccuped=TimeKeeper.getInstance().getExecutionTimeModule().get(moduleName).get(lastindex) - TimeKeeper.getInstance().getExecutionTimeModule().get(moduleName).get(0);
 
 		}
 
 		for(int deviceId : TimeKeeper.getInstance().getDeviceOccupationTime().keySet())
 		{
-
 
 			if(TimeKeeper.getInstance().getDeviceOccupationTime().get(deviceId).isEmpty())
 				continue;
@@ -223,9 +224,12 @@ public class Controller extends SimEntity{
 			sumTimeTotal += TimeKeeper.getInstance().getDeviceOccupationTime().get(deviceId).get(lastindex);
 
 		}
+
 		System.out.println("=========================================");
 		System.out.println("DEVICE OCCUPATION TIME ------>"+(sumTimeOccuped/sumTimeTotal) );
 		System.out.println("=========================================");
+
+ */
 	}
 
 
@@ -291,7 +295,6 @@ public class Controller extends SimEntity{
 				sendNow(deviceId, FogEvents.LAUNCH_MODULE, module);
 			}
 		}
-
 
 	}
 
