@@ -563,16 +563,16 @@ public class FogDevice extends PowerDatacenter {
 			TimeKeeper.getInstance().getDeviceOccupationTime().get(getId()).add((double)System.currentTimeMillis());
 
 
-
 /*
+
 		if(getName().equals("d-0")){
 			System.out.println("------------------------");
 			System.out.println("Utilization = "+lastUtilization);
 			System.out.println("Power = "+getHost().getPowerModel().getPower(lastUtilization));
 			System.out.println(timeNow-lastUtilizationUpdateTime);
 		}
-		*/
 
+*/
 		double currentCost = getTotalCost();
 		double newcost = currentCost + (timeNow-lastUtilizationUpdateTime)*getRatePerMips()*lastUtilization*getHost().getTotalMips();
 		setTotalCost(newcost);
@@ -690,8 +690,6 @@ public class FogDevice extends PowerDatacenter {
 					return;
 				}
 
-				System.out.println(ev.eventTime());
-
 				tuple.setVmId(vmId);
 
 				//Logger.error(getName(), "Executing tuple for operator " + moduleName);
@@ -699,7 +697,6 @@ public class FogDevice extends PowerDatacenter {
 				updateTimingsOnReceipt(tuple);
 
 				executeTuple(ev, tuple.getDestModuleName());
-
 
 			}else if(tuple.getDestModuleName()!=null){
 				if(tuple.getDirection() == Tuple.UP)
@@ -726,6 +723,7 @@ public class FogDevice extends PowerDatacenter {
 		}
 
 	}
+
 
 
 
